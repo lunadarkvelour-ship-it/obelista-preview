@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Obelista — Preview
 
-## Getting Started
+Отдельный Next.js проект: редизайн панели Obelista (только фронт, не ломает
+основной прод). Деплоится на Vercel, читает живые данные из
+`app.obelista.com` через API-прокси.
 
-First, run the development server:
+## Что внутри
+
+- 5 страниц: `/creatives` (главный редизайн), `/analytics` (минор), `/accounts` (минор), `/integrations` (большой редизайн), `/users` (минимум)
+- Дизайн-токены скопированы из `media_library_2.html` (purple `#6d28d9`, Geist Sans + Mono)
+- Interaction-приёмы из superagentslabs: `group-hover` + `transition-colors duration-300` — плавно но быстро
+- Drop-зона медиатеки collapsed by default, открывается на `+ Upload`
+- Геометрия: 280px sticky sidebar, 64px sticky topbar, max-width контента 1400px
+- `prefers-reduced-motion` уважается — transitions выключаются
+
+## Запуск локально
 
 ```bash
+cd /Users/mac/obelista-preview
+npm install          # уже сделано
+cp .env.example .env.local
+# впиши OBELISTA_SESSION_COOKIE если хочешь живые данные
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# откроется на http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Без cookie — все 5 страниц работают на моках из `lib/mock.ts` (реальные
+act_xxx ID и числа из существующей панели, ничего не выдумано).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Деплой на Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# 1. Один раз: войди в Vercel
+vercel login
 
-## Learn More
+# 2. Из папки проекта
+vercel
 
-To learn more about Next.js, take a look at the following resources:
+# Vercel спросит — это новый проект? Yes, имя любое (obelista-preview).
+# Сразу создаст preview-деплой с публичным URL.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 3. Положи секрет в env:
+vercel env add OBELISTA_SESSION_COOKIE
+# (вставь значение, вставь для Production)
+vercel env add OBELISTA_BASE_URL
+# https://app.obelista.com
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 4. Запушь в прод
+vercel --prod
+```
 
-## Deploy on Vercel
+После `vercel --prod` получишь финальный URL вида
+`https://obelista-preview.vercel.app`. Дай мне знать — открою и проверю.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Структура
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+├── layout.tsx                   # шрифты Geist Sans + Mono, html lang="ru"
+├── page.tsx                     # redirect → /creatives
+├── globals.css                  # design tokens (purple, ink, surface, line, brand)
+├── creatives/page.tsx           # главный редизайн
+├── analytics/page.tsx           # KPI + Area-chart + breakdowns
+├── accounts/page.tsx            # таблица кабинетов
+├── integrations/page.tsx        # список-карточки (superagentslabs style)
+├── users/page.tsx               # базовая таблица
+├── campaigns/page.tsx           # заглушка-ссылка на creatives
+└── api/proxy/[...path]/route.ts # прокси к app.obelista.com
+
+components/
+├── shell/
+│   ├── AppShell.tsx             # sidebar + topbar + main
+│   ├── Sidebar.tsx              # 280px, OBĒLISTA logo
+│   └── Topbar.tsx               # search + notifications + primary CTA
+└── views/
+    ├── CreativesView.tsx        # сетка/таблица крео + dropzone + фильтры
+    ├── AnalyticsView.tsx        # KPI + recharts Area + breakdowns
+    ├── AccountsView.tsx         # таблица кабов + sticky header
+    ├── IntegrationsView.tsx     # список-карточки с group-hover
+    ├── UsersView.tsx            # простая таблица
+    └── CampaignsView.tsx        # заглушка
+
+lib/
+├── api.ts                       # proxyFetch + isLive()
+└── mock.ts                      # моки: 12 кабов, 12 крео, 10 интеграций, аналитика
+```
+
+## Чего preview **не делает**
+
+- Не пишет в прод (только GET-запросы через `/api/proxy/*`)
+- Не хранит твои данные (cookie только в env Vercel)
+- Не модифицирует `app.obelista.com` никак
+
+## Когда подключишь живой cookie
+
+Все страницы автоматически начнут показывать реальные данные. Менять код
+не нужно — `lib/api.ts` сам решит: cookie есть → идём в прод, нет → моки.
+
+## Полезные мелочи
+
+- **Мобильная верстка** — не приоритет, но sidebar/topbar адаптивятся
+- **Темная тема** — пока только светлая. Если нужна — скажи, добавлю переключатель (как в проде)
+- **Vercel Analytics** — если хочешь, в Vercel Dashboard → Project → Analytics → Enable
+- **Recharts** уже стоит, можно делать любые графики

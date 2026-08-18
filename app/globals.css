@@ -1,26 +1,281 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ─────────────────────────────────────────────────────────────────────
+   Obelista Preview — Design Tokens
+   ─────────────────────────────────────────────────────────────────────
+   Базовые токены скопированы из media_library_2.html (дизайн-комп,
+   который владелец одобрил). Плюс interaction-тайминги из superagentslabs
+   (group-hover + transition-colors 300ms — "плавно но быстро").
+*/
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+@theme {
+  /* Бренд-палитра: purple, как в проде Obelista */
+  --color-brand-50:  #f5f3ff;
+  --color-brand-100: #ede9fe;
+  --color-brand-200: #ddd6fe;
+  --color-brand-300: #c4b5fd;
+  --color-brand-400: #a78bfa;
+  --color-brand-500: #8b5cf6;
+  --color-brand-600: #7c3aed;
+  --color-brand-700: #6d28d9;   /* основной purple */
+  --color-brand-800: #5b21b6;
+  --color-brand-900: #4c1d95;   /* hover-darker */
+
+  /* Нейтрали: ink / surface / line. DEFAULT — базовый цвет, остальные —
+   * shade-варианты. */
+  --color-ink:        #111827;
+  --color-ink-muted:  #6b7280;
+  --color-ink-faint:  #9ca3af;
+  --color-surface:        #ffffff;
+  --color-surface-subtle: #fafafa;
+  --color-surface-sunken: #f5f5f5;
+  --color-line:     #e5e7eb;
+  --color-line-soft: #f1f5f9;
+
+  /* Статусы */
+  --color-ok:       #10b981;
+  --color-ok-soft:  #d1fae5;
+  --color-warn:     #f59e0b;
+  --color-warn-soft: #fef3c7;
+  --color-bad:      #ef4444;
+  --color-bad-soft: #fee2e2;
+
+  /* Гео-чипы (DZ/BD/BR/…) — DZ зелёный, BD янтарь, BR фиолет, Other серый */
+  --color-geo-dz:    #10b981;
+  --color-geo-bd:    #f59e0b;
+  --color-geo-br:    #8b5cf6;
+  --color-geo-other: #6b7280;
+
+  /* Тени */
+  --shadow-soft: 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-pop:  0 8px 24px rgba(17, 24, 39, 0.08);
+  --shadow-card-hover: 0 6px 18px rgba(17, 24, 39, 0.08);
+
+  /* Шрифты — Geist уже подключён в layout.tsx */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── Базовый layer ───────────────────────────────────────────────── */
+@layer base {
+  html, body {
+    background: var(--color-surface-subtle);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+  body {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  .num { font-variant-numeric: tabular-nums; }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* Логотип OBĒLISTA — чёрточка под Ē */
+  .logo { letter-spacing: 0.18em; font-weight: 500; }
+  .logo .e { position: relative; display: inline-block; }
+  .logo .e::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0.05em;
+    height: 2px;
+    background: var(--color-brand-700);
+    border-radius: 1px;
+  }
+
+  /* Фокус-кольцо в фирменном цвете */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.18);
+    border-radius: 8px;
+  }
+
+  /* Уважаем prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Components layer — НЕ через @apply, чтобы не ловить
+   "unknown utility class" от Tailwind v4. Используем CSS-переменные
+   напрямую. ────────────────────────────────────────────────────── */
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 31px;
+  padding: 0 16px;
+  border-radius: 8px;
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 300ms ease, color 300ms ease;
 }
+.nav-item:hover {
+  background: var(--color-surface-sunken);
+}
+.nav-item.active {
+  background: var(--color-brand-100);
+  color: var(--color-brand-900);
+  font-weight: 600;
+}
+.nav-item.active svg { color: var(--color-brand-900); }
+.nav-item svg {
+  color: var(--color-ink-muted);
+  transition: color 300ms ease;
+}
+.nav-item:hover svg { color: var(--color-ink); }
+
+.nav-section-label {
+  color: var(--color-ink-faint);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 0 16px 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+.chip-dot { width: 6px; height: 6px; border-radius: 999px; }
+
+.badge-cached  { background: var(--color-ok-soft);    color: #047857; }
+.badge-new     { background: var(--color-surface-sunken); color: var(--color-ink); }
+.badge-pending { background: var(--color-warn-soft); color: #92400e; }
+.badge-most    { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.badge-less    { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+.toolbar-btn:hover {
+  background: var(--color-surface-subtle);
+  border-color: var(--color-ink-faint);
+  color: var(--color-ink);
+}
+.toolbar-btn.primary {
+  background: var(--color-brand-700);
+  border-color: var(--color-brand-700);
+  color: #fff;
+}
+.toolbar-btn.primary:hover {
+  background: var(--color-brand-900);
+  border-color: var(--color-brand-900);
+}
+.toolbar-btn.icon-only { width: 32px; padding: 0; justify-content: center; }
+
+.input-base {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  width: 100%;
+}
+.input-base:focus { border-color: var(--color-brand-700); box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.18); }
+.input-base::placeholder { color: var(--color-ink-faint); }
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface);
+  padding: 2px;
+}
+.seg button {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--color-ink-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+.seg button:hover { color: var(--color-ink); }
+.seg button.active {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.card {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  cursor: pointer;
+}
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: #cbd5e1;
+}
+
+.dropzone {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-bottom: 0;
+  transition: max-height 280ms cubic-bezier(.2,.7,.2,1),
+              opacity 220ms ease,
+              margin-bottom 220ms ease;
+}
+.dropzone.open {
+  max-height: 320px;
+  opacity: 1;
+  margin-bottom: 24px;
+}
+
+.divider-soft {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #e5e7eb 12%, #e5e7eb 88%, transparent);
+}
+
+.truncate-mid {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+  unicode-bidi: plaintext;
+}
+
+/* Aspect-ratios для превью крео */
+.preview-9x16 { aspect-ratio: 9 / 16; }
+.preview-1x1  { aspect-ratio: 1 / 1;  }
+.preview-4x5  { aspect-ratio: 4 / 5;  }
+
+.footer-link {
+  color: var(--color-ink-muted);
+  font-size: 13px;
+  transition: color 200ms ease;
+}
+.footer-link:hover { color: var(--color-ink); }
