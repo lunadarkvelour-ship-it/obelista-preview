@@ -34,9 +34,7 @@ export function OutputPanel() {
     <div className="flex flex-col gap-2.5">
       <Tabs value={tab} onChange={(v) => setTab(v as OutputTab)}>
         <TabList
-          idBase="outtab"
           ariaLabel="Output format"
-          current={tab}
           items={[
             { id: "txt", label: "Bundle · text" },
             { id: "json", label: "JSON spec" },
