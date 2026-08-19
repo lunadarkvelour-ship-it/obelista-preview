@@ -185,9 +185,7 @@ export function PreviewView() {
         <section className="flex flex-col gap-2.5">
           <Tabs value={tab} onChange={(v) => setTab(v as "txt" | "json")}>
             <TabList
-              idBase="bundletab"
               ariaLabel="Output format"
-              current={tab}
               items={[
                 { id: "txt", label: "Prompt" },
                 { id: "json", label: "Bundle JSON" },
