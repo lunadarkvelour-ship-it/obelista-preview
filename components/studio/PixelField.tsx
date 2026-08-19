@@ -8,7 +8,6 @@
  *  или что угодно, введённое руками. */
 import * as React from "react";
 import { ComboBox, ComboBoxItem } from "@/components/rac/ComboBox";
-import { Text } from "react-aria-components";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -80,7 +79,7 @@ export function PixelField({
           пикселя обрезалось до «agenc…». */}
       {(p: PixelOption) => (
         <ComboBoxItem id={p.id} textValue={p.id}>
-          <Text slot="label" className="flex w-full min-w-0 flex-col">
+          <span className="flex w-full min-w-0 flex-col">
             <span className="truncate">{p.name}</span>
             {p.id !== "auto" && (
               <span className="truncate font-mono text-2xs text-neutral-500 group-focus:text-white/70 dark:text-neutral-400">
@@ -88,7 +87,7 @@ export function PixelField({
                 {p.accounts > 1 && ` · on ${p.accounts} accounts`}
               </span>
             )}
-          </Text>
+          </span>
         </ComboBoxItem>
       )}
     </ComboBox>

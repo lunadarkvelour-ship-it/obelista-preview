@@ -5,7 +5,6 @@ import {
   Button as RacButton,
   Disclosure as RacDisclosure,
   DisclosurePanel as RacDisclosurePanel,
-  Heading,
 } from "react-aria-components";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,7 +36,7 @@ export function SectionCard({
       className="mb-3 break-inside-avoid scroll-mt-20 rounded-xl border border-border bg-card px-4 shadow-[0_1px_2px_rgb(0_0_0/0.04)]"
     >
       <RacDisclosure defaultExpanded className="group">
-        <Heading className="m-0">
+        <h3 className="m-0">
           <RacButton
             slot="trigger"
             className="focus-ring flex w-full cursor-pointer items-center gap-2.5 rounded-md py-3 text-left outline-none"
@@ -52,7 +51,7 @@ export function SectionCard({
               )}
             />
           </RacButton>
-        </Heading>
+        </h3>
         <RacDisclosurePanel className="border-t border-border pb-3.5 pt-3.5">
           {/* gap-2.5, а не 3: на десяти секциях каждая лишняя ступень отступа
               стоит целого экрана прокрутки. */}
