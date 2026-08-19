@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useStore, EMPTY_ACCOUNTS, EMPTY_GROUPS } from "@/lib/store";
 import { SectionCard, Hint } from "@/components/studio/fields";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/coss";
 import { Button } from "@/components/ui/button";
 import { PixelField } from "@/components/studio/PixelField";
 import { Label } from "@/components/coss";

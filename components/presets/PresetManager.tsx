@@ -14,7 +14,7 @@ import { Modal } from "@/components/rac/Modal";
 import { Dialog } from "@/components/rac/Dialog";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/coss";
 import { Checkbox } from "@/components/coss";
 import { useStore } from "@/lib/store";
 import { ALL_SCOPE_IDS, SCOPE_GROUPS, scopeLabel } from "@/lib/preset-scope";

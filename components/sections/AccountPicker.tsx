@@ -7,7 +7,7 @@ import * as React from "react";
 import { ListLayout, Virtualizer } from "react-aria-components";
 import { GridList, GridListItem } from "@/components/rac/GridList";
 import { useStore, EMPTY_ACCOUNTS, EMPTY_IDS } from "@/lib/store";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/coss";
 import { Textarea } from "@/components/coss";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/segmented";

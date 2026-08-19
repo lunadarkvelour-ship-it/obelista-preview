@@ -3,7 +3,7 @@
 import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/coss";
 import { Label } from "@/components/coss";
 import { Checkbox } from "@/components/coss";
 import { GENDERS, DEVICES, USER_OS } from "@/lib/constants";

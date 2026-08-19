@@ -19,7 +19,7 @@ import { ArrowLeft, ArrowRight, BookmarkPlus, Check, ChevronDown, ChevronsDownUp
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/coss";
 import { SelectField } from "@/components/studio/control";
 import { FormScopeProvider } from "@/components/studio/form-scope";
 import { PresetManager } from "@/components/presets/PresetManager";

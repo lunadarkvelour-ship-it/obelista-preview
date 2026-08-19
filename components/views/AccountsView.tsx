@@ -40,7 +40,7 @@ import { Tip } from "@/components/ui/tooltip";
 import { ColResizer } from "@/components/sections/ColResizer";
 import { parseAccQuery, unmatched } from "@/lib/acc-query";
 import { personalAccounts } from "@/lib/lichka";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/coss";
 import { SelectField } from "@/components/studio/control";
 import { AttentionChips, StatusDot, statusMeta } from "@/components/sections/health-bits";
 import { PAGE_PAD, PAGE_WIDTH } from "@/components/shell/page";
