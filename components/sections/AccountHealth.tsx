@@ -9,7 +9,7 @@ import { X } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { Segmented } from "@/components/ui/segmented";
 import { MotionDialog } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Hint } from "@/components/studio/fields";
 import { personalAccounts } from "@/lib/lichka";
 import type { SnapshotAccount } from "@/lib/types";

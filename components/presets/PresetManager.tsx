@@ -13,7 +13,7 @@ import { Check, Pencil, Save, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/rac/Modal";
 import { Dialog } from "@/components/rac/Dialog";
 import { toast } from "@/components/ui/toast";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Input } from "@/components/coss";
 import { Checkbox } from "@/components/coss";
 import { useStore } from "@/lib/store";

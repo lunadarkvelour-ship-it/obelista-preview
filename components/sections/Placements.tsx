@@ -4,7 +4,7 @@ import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
 import { Checkbox, CheckboxGroup } from "@/components/coss";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { PLATFORMS } from "@/lib/constants";
 import { PLACEMENTS, parsePositions, splitPositions } from "@/lib/placements";
 import { cn } from "@/lib/utils";

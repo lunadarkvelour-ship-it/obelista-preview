@@ -42,7 +42,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { PAGE_PAD, PAGE_WIDTH } from "@/components/shell/page";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Input } from "@/components/coss";
 import { api } from "@/lib/analytics";
 import { auth, type AuthResult, type AuthUser } from "@/lib/auth";

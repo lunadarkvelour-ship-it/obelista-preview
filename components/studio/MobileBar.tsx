@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button as RacButton, Heading } from "react-aria-components";
 import { List, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Sheet } from "@/components/ui/dialog";
 import { SECTIONS } from "./sections-list";
 import { LEAVES } from "@/components/shell/leaves";

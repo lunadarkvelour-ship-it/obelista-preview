@@ -32,7 +32,7 @@
 
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { PAGE_PAD, PAGE_WIDTH } from "@/components/shell/page";
 import { useAntik } from "@/lib/use-antik";
 import { RefreshButton } from "./RefreshButton";

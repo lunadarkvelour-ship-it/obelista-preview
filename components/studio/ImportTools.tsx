@@ -8,7 +8,7 @@ import { Upload } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { Expandable } from "@/components/ui/disclosure";
 import { Textarea } from "@/components/coss";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Hint } from "@/components/studio/fields";
 import { parseSnapshot } from "@/lib/snapshot";
 import { cn } from "@/lib/utils";

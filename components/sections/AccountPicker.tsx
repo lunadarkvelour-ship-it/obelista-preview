@@ -9,7 +9,7 @@ import { GridList, GridListItem } from "@/components/rac/GridList";
 import { useStore, EMPTY_ACCOUNTS, EMPTY_IDS } from "@/lib/store";
 import { Input } from "@/components/coss";
 import { Textarea } from "@/components/coss";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Segmented } from "@/components/ui/segmented";
 import { Hint } from "@/components/studio/fields";
 import { personalAccounts } from "@/lib/lichka";

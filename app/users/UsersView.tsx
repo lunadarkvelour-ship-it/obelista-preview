@@ -40,7 +40,7 @@ import * as React from "react";
 import { Ban, Check, Copy, RotateCcw, Send, ShieldCheck, Trash2, UserPlus, X } from "lucide-react";
 import { PAGE_PAD, PAGE_WIDTH } from "@/components/shell/page";
 import { MotionDialog } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Segmented } from "@/components/ui/segmented";
 import { auth, type AdminUser, type AuthUser } from "@/lib/auth";
 import { authErrorText } from "@/lib/auth-copy";
