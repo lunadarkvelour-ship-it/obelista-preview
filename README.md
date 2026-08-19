@@ -24,8 +24,9 @@ Next.js 15.5 (App Router) · React 19 · TypeScript · Tailwind v4 · coss ui
 
 | Где | Что | Статус |
 |---|---|---|
-| `components/ui/*` | шим-обёртки над `react-aria-components` | действующий, ~95% UI |
-| `components/rac/*` | сами RAC-примитивы в стиле Tailwind-стартера | действующий |
+| `components/ui/*` (группы 1–2) | шим-обёртки над `react-aria-components` | действующий |
+| `components/ui/*` (группа 3: `accordion`, `collapsible`, `select`, `scroll-area`, `calendar`, `loading`, `tabs`) | coss-исходники (base-ui / daypicker) | мигрировано |
+| `components/rac/*` | сами RAC-примитивы в стиле Tailwind-стартера | действующий, ~25 файлов прямого импорта |
 | `components/coss/*` | coss ui для нового кода | фонд, 3 примитива |
 | `app/globals.css` | палитра панели (синяя → фиолетовая) + тени | действующий |
 
