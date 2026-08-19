@@ -49,6 +49,7 @@
 
 import * as React from "react";
 import { Button as RacButton, Dialog, DialogTrigger } from "react-aria-components";
+import { Menu as BaseMenu } from "@base-ui/react/menu";
 import { Popover } from "@/components/rac/Popover";
 import {
   ChevronDown,
@@ -59,7 +60,6 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { PAGE_PAD, PAGE_WIDTH } from "@/components/shell/page";
-import { Menu, MenuItem, MenuTrigger } from "@/components/ui/menu";
 import { Switch } from "@/components/ui/switch";
 import { Expandable } from "@/components/ui/disclosure";
 import {
@@ -205,22 +205,40 @@ function ChoiceChip({
   onChange: (id: string) => void;
 }) {
   return (
-    <MenuTrigger>
-      <RacButton className={CHIP} aria-label={title}>
+    <BaseMenu.Root>
+      <BaseMenu.Trigger className={CHIP} aria-label={title}>
         {label}
         <ChevronDown className="size-3 opacity-60" strokeWidth={2} aria-hidden />
-      </RacButton>
-      <Menu onAction={(k) => onChange(String(k))}>
-        {options.map((o) => (
-          <MenuItem key={o.id} id={o.id} textValue={o.label}>
-            <div className="flex flex-col">
-              <span>{o.label}</span>
-              {o.hint ? <span className="text-2xs text-muted-foreground">{o.hint}</span> : null}
-            </div>
-          </MenuItem>
-        ))}
-      </Menu>
-    </MenuTrigger>
+      </BaseMenu.Trigger>
+      <BaseMenu.Portal>
+        <BaseMenu.Positioner sideOffset={4}>
+          <BaseMenu.Popup
+            className={cn(
+              "z-50 min-w-[150px] rounded-lg border border-border bg-popover p-1 text-popover-foreground",
+              "shadow-lg/5 outline-none",
+              "data-[starting-style]:opacity-0 data-[starting-style]:scale-95",
+              "data-[ending-style]:opacity-0 data-[ending-style]:scale-95",
+              "transition-all duration-150",
+              "font-sans max-h-[inherit] overflow-auto empty:text-center empty:pb-2",
+            )}
+          >
+            {options.map((o) => (
+              <BaseMenu.Item
+                key={o.id}
+                onClick={() => onChange(o.id)}
+                label={o.label}
+                className="group flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none select-none data-[highlighted]:bg-hover data-[highlighted]:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 font-normal truncate"
+              >
+                <div className="flex flex-col">
+                  <span>{o.label}</span>
+                  {o.hint ? <span className="text-2xs text-muted-foreground">{o.hint}</span> : null}
+                </div>
+              </BaseMenu.Item>
+            ))}
+          </BaseMenu.Popup>
+        </BaseMenu.Positioner>
+      </BaseMenu.Portal>
+    </BaseMenu.Root>
   );
 }
 
