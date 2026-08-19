@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Obelista Ingest",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Передаёт user_token и состояние Ads Manager в obelista-preview",
   "permissions": ["cookies", "storage", "tabs", "scripting"],
   "host_permissions": [
     "https://*.facebook.com/*",
     "https://*.fbcdn.net/*",
+    "https://graph.facebook.com/*",
     "https://obelista-preview-chi.vercel.app/*",
     "http://localhost:*/*",
     "http://127.0.0.1:*/*"
@@ -19,12 +20,6 @@
       "matches": ["https://adsmanager.facebook.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
-    },
-    {
-      "matches": ["https://adsmanager.facebook.com/*"],
-      "js": ["content_main.js"],
-      "run_at": "document_start",
-      "world": "MAIN"
     }
   ],
   "action": {

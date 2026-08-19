@@ -167,18 +167,10 @@
     debounceTimer = setTimeout(send, DEBOUNCE_MS)
   }
 
-  // ---------- main-world → background: токен из GraphQL ----------
-  // content_main.js (MAIN world) хукает fetch/XHR, ловит access_token
-  // из URL GraphQL-вызовов FB и кидает postMessage сюда. Isolated world
-  // не видит main-world переменные напрямую, но postMessage работает
-  // через window-объект (общий для обоих миров).
-  window.addEventListener("message", (e) => {
-    if (!e.data || e.data.source !== "obelista" || e.data.type !== "token") return
-    if (!e.data.token || e.data.token.length < 50) return
-    chrome.runtime
-      .sendMessage({ type: "token_captured", token: e.data.token, source: "main-world" })
-      .catch(() => {})
-  })
+  // ---------- дёрнуть harvest в background ----------
+  // Background сам умеет находить токен (MAIN world extractFromPage +
+  // bg fetch + verify), нам остаётся только попросить.
+  chrome.runtime.sendMessage({ type: "harvest_now" }).catch(() => {})
 
   // стартуем наблюдатель за изменением DOM
   const obs = new MutationObserver(() => schedule())
