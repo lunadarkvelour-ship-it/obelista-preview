@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Obelista Ingest</title>
     <style>
-      body { font: 13px/1.4 system-ui, -apple-system, sans-serif; width: 240px; margin: 0; padding: 12px 14px; color: #111; }
+      body { font: 13px/1.4 system-ui, -apple-system, sans-serif; width: 260px; margin: 0; padding: 12px 14px; color: #111; }
       h1 { font-size: 13px; margin: 0 0 8px; }
       .row { display: flex; justify-content: space-between; align-items: center; margin: 6px 0; }
       .pill { padding: 2px 8px; border-radius: 10px; font-size: 11px; }
@@ -14,12 +14,18 @@
       a, button { font: inherit; cursor: pointer; }
       .open { display: inline-block; margin-top: 10px; padding: 6px 10px; background: #111; color: #fff; border: 0; border-radius: 4px; text-decoration: none; }
       .meta { color: #666; font-size: 11px; margin-top: 4px; word-break: break-all; }
+      .drops { margin-top: 8px; border-top: 1px solid #eee; padding-top: 6px; }
+      .drop { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; line-height: 1.5; }
+      .drop .t { color: #888; flex: 0 0 auto; }
+      .drop .s { color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .empty { color: #999; font-size: 11px; font-style: italic; }
     </style>
   </head>
   <body>
     <h1>Obelista Ingest</h1>
     <div class="row"><span>Status</span><span id="status" class="pill idle">…</span></div>
     <div class="meta" id="meta">…</div>
+    <div class="drops" id="drops"></div>
     <a class="open" id="open-options" href="#">Open options</a>
     <script src="popup.js"></script>
   </body>

