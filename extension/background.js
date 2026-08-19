@@ -12,7 +12,7 @@
 // через 60s, а не нулевую защиту).
 
 const DEFAULT_ENDPOINT = "https://obelista-preview.vercel.app/api/extension/ingest"
-const STATE_ENDPOINT_SUFFIX = "/api/extension/state" // для опций
+const STATE_ENDPOINT_SUFFIX = "/state" // для опций: из /api/extension/ingest уже вырезали /ingest выше
 const TOKEN_DEBOUNCE_MS = 60_000
 
 const recentTokenSends = new Map() // fb_user_id -> timestamp ms
