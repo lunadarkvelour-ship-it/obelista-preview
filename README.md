@@ -4,6 +4,23 @@
 для безопасного визуального и архитектурного эксперимента без риска для
 продакшна.
 
+## Иконки
+
+Семейство: **[Phosphor Icons](https://phosphoricons.com)** (npm: `@phosphor-icons/react`).
+
+Параметры по умолчанию для всех иконок в проекте (зафиксировано владельцем 19.08.2026):
+
+- **weight** = `regular` (не `bold`/`light`/`thin`/`fill`/`duotone`)
+- **size** = `24px`
+- **color** = `#050505` (currentColor по умолчанию в CSS; hex — референс для light-mode. В dark-mode иконки красятся `currentColor` и подхватывают foreground)
+
+Все иконки в проекте должны наследовать эти параметры. Если нужны исключения
+(например, smaller icons в dense list 16px, или color: muted) — точечно
+переопределяй `size`/`color` на месте.
+
+Замена в проекте: `lucide-react` → `@phosphor-icons/react` (по смыслу секций,
+НЕ 1:1 по имени). Маппинг имени выбирает воркер, не этот README.
+
 ## Что это
 
 Полная копия `panel/` из `xraaff/obelista` (388 файлов исходников, ~23 тыс.
