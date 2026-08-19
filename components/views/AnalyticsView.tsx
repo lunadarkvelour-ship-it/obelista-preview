@@ -11,6 +11,7 @@
  */
 
 import * as React from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/coss";
 import { EyeOff, RefreshCw, ChevronsDownUp, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -103,24 +104,46 @@ function creativeToNode(r: CreativeRow, until: string, ceiling: number | null): 
  *  Отдельно потому, что срез — это ответ базы, и он приходит успешным даже
  *  тогда, когда в базу час никто ничего не клал. Свежесть цифр и успешность
  *  запроса — разные вещи, и путать их означает ровно тот случай, ради которого
- *  всё это написано: экран зелёный, спенд стоит с обеда. */
+ *  всё это написано: экран зелёный, спенд стоит с обеда.
+ *
+ *  Запрос уехал в TanStack Query: `refetchInterval` заменил setInterval, ручной
+ *  `probe` стал invalidate+refetch, ошибка приводит к `st === null` через
+ *  `enabled:false` с подменой на catch-обёртке — старое поведение «тихо занулить
+ *  состояние на сбое» сохранено, чтобы экран не висел на прошлой блокировке. */
 function useCollector(pollMs = 30_000) {
-  const [st, setSt] = React.useState<CollectorState | null>(null);
+  const qc = useQueryClient();
+  const query = useQuery({
+    queryKey: ["analytics", "collector"] as const,
+    queryFn: () => api.collector(),
+    refetchInterval: pollMs,
+    /* Фокус здесь не нужен: пользователь листа аналитики не уходит со страницы
+       надолго, а коллектор живёт своим расписанием. */
+    retry: false,
+  });
   /* `probe` — то, чего ждёт человек, нажимая «обновить»: не «перечитай базу», а
      «сходи и проверь». Сбор живёт своим расписанием и о снятой блокировке узнаёт
-     сам не сразу; кнопка обязана уметь его пнуть. */
-  const pull = React.useCallback(async (probe = false) => {
-    try {
-      setSt(await (probe ? api.collectorRefresh() : api.collector()));
-    } catch {
-      setSt(null);
-    }
-  }, []);
-  React.useEffect(() => {
-    void pull();
-    const id = setInterval(() => void pull(), pollMs);
-    return () => clearInterval(id);
-  }, [pull, pollMs]);
+     сам не сразу; кнопка обязана уметь его пнуть. После probe инвалидируем
+     кэш — следующий цикл refetch прочитает уже свежее состояние. */
+  const pull = React.useCallback(
+    async (probe = false) => {
+      if (probe) {
+        try {
+          await api.collectorRefresh();
+        } catch {
+          /* Намеренно глотаем: probe — это «пнуть демона», и если он не
+             ответил, следующий refetch сам покажет null. Сейчас упасть тут
+             значило бы зависнуть на экране старой блокировки. */
+        }
+        await qc.invalidateQueries({ queryKey: ["analytics", "collector"] });
+        return;
+      }
+      await query.refetch();
+    },
+    [qc, query],
+  );
+  /* Старая семантика: ошибка = null. useQuery хранит ошибку, но потребители
+     листа спрашивают «есть ли состояние», а не «есть ли исключение». */
+  const st: CollectorState | null = query.error ? null : query.data ?? null;
   return { st, pull };
 }
 
