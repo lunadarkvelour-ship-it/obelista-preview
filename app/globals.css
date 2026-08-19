@@ -428,11 +428,16 @@
        ниже ПОЗВОЛЯЕТ браузеру подкручивать opsz под реальный кегль — крупная
        метрика получит форму ближе к display (opsz 45), мелкая — ближе к micro
        (opsz 8). Здесь — дефолт для среднего текста (UI, 14px). GEOM 25 — UI-
-       нейтральный, не brand; wght 400 — regular. */
+       нейтральный, не brand.
+       wght вынесен в `font-weight` ниже: `font-weight` стандартно маппится
+       браузером на ось `wght` variable font, и Tailwind-классы
+       `font-bold`/`font-semibold`/`font-medium` начинают работать. Если
+       оставить `wght` тут — оно перебивает автоматический маппинг, и
+       font-bold/font-light молча игнорируются (регрессия с DM Sans). */
     font-variation-settings:
       "opsz" var(--cal-opsz-ui),
-      "GEOM" var(--cal-geom-ui),
-      "wght" var(--cal-wght-regular);
+      "GEOM" var(--cal-geom-ui);
+    font-weight: var(--cal-wght-regular);
     /* Без `auto` ось opsz не реагирует на размер — без неё правило выше
        зафиксирует рисунок на 14, и мелкий/крупный текст получат одинаковые
        формы. С `auto` браузер интерполирует opsz между значениями. */
@@ -443,15 +448,16 @@
   /* Заголовки — Cal Sans в display-зоне. Оси прописаны явно, чтобы не
      зависеть от того, разрешил ли браузер `font-optical-sizing: auto` на
      дочернем элементе (поведение разное). GEOM 50 — Cal Sans brand
-     (характерный рисунок), wght 600 — semibold, реальный вес, не Faux.
-     Трекинг отрицательный, как и раньше: геометрический гротеск на крупном
-     кегле рассыпается по буквам. */
+     (характерный рисунок). wght 600 — semibold, реальный вес, не Faux,
+     задан через `font-weight` чтобы Tailwind `font-bold`/`font-light`
+     продолжали работать. Трекинг отрицательный, как и раньше: геометрический
+     гротеск на крупном кегле рассыпается по буквам. */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     font-variation-settings:
       "opsz" var(--cal-opsz-display),
-      "GEOM" var(--cal-geom-brand),
-      "wght" var(--cal-wght-semibold);
+      "GEOM" var(--cal-geom-brand);
+    font-weight: var(--cal-wght-semibold);
     letter-spacing: -0.02em;
     /* Заголовок ломается по смыслу, а не по остатку строки. */
     text-wrap: balance;
@@ -500,8 +506,8 @@
   font-size: var(--text-2xs);
   font-variation-settings:
     "opsz" var(--cal-opsz-micro),
-    "GEOM" var(--cal-geom-ui),
-    "wght" var(--cal-wght-medium);
+    "GEOM" var(--cal-geom-ui);
+  font-weight: var(--cal-wght-medium);
   line-height: 1;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -518,8 +524,8 @@
   font-family: var(--font-sans);
   font-variation-settings:
     "opsz" var(--cal-opsz-display),
-    "GEOM" var(--cal-geom-brand),
-    "wght" var(--cal-wght-bold);
+    "GEOM" var(--cal-geom-brand);
+  font-weight: var(--cal-wght-bold);
   letter-spacing: -0.024em;
   font-variant-numeric: tabular-nums lining-nums;
 }
@@ -680,8 +686,8 @@ button:not(:disabled):not(.w-full):active,
   font-family: var(--font-mono);
   font-variation-settings:
     "opsz" var(--cal-opsz-ui),
-    "GEOM" var(--cal-geom-a11y),
-    "wght" var(--cal-wght-regular);
+    "GEOM" var(--cal-geom-a11y);
+  font-weight: var(--cal-wght-regular);
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0, "clig" 0, "calt" 0;
   font-variant-numeric: tabular-nums;
