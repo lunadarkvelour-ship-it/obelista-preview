@@ -6,7 +6,10 @@
   "permissions": ["cookies", "storage", "tabs", "scripting"],
   "host_permissions": [
     "https://*.facebook.com/*",
-    "https://*.fbcdn.net/*"
+    "https://*.fbcdn.net/*",
+    "https://obelista-preview.vercel.app/*",
+    "http://localhost:*/*",
+    "http://127.0.0.1:*/*"
   ],
   "background": {
     "service_worker": "background.js"
