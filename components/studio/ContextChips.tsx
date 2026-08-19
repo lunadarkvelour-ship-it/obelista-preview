@@ -2,7 +2,7 @@
 
 import { useBuilder } from "./useBuilder";
 import { OBJECTIVES } from "@/lib/constants";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/coss";
 
 export function ContextChips() {
   const { resolved: s, meta, ctx } = useBuilder();
@@ -11,11 +11,11 @@ export function ContextChips() {
   const tone = meta.activation.tone;
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <Badge variant="primary">{prof?.label ?? s.profile}</Badge>
+      <Badge variant="info">{prof?.label ?? s.profile}</Badge>
       <Badge variant="outline">{meta.nCabs}</Badge>
       <Badge variant="outline">{obj}</Badge>
       <Badge variant="outline">${s.daily} {s.budgetLevel === "adset" ? "ABO" : "CBO"}</Badge>
-      <Badge variant={tone === "danger" ? "danger" : tone === "warning" ? "warning" : "success"}>
+      <Badge variant={tone === "danger" ? "destructive" : tone === "warning" ? "warning" : "success"}>
         {s.activate === "everything" ? "spend now" : s.activate === "nothing" ? "paused" : s.activate}
       </Badge>
     </div>
