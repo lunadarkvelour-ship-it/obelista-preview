@@ -1,48 +1,39 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import { AppToastRegion } from "@/components/ui/toast";
 import { AppShell } from "@/components/shell/AppShell";
 import "./globals.css";
 
-/* Два семейства: DM Sans на весь интерфейс и Geist Mono на техническое.
+/* Одно семейство на весь интерфейс: Cal Sans 2.0 variable. DM Sans и
+   Geist Mono сняты — Cal Sans покрывает и то и другое, и не покрывает
+   только реальный моноширинный грид (его у Cal Sans нет, и для id/JSON
+   принят пропорциональный шрифт с tabular-nums — лучшее, что есть без
+   отдельного моно-семейства).
 
-   DM Sans — выбор владельца. Он вариативный, и это здесь не украшение: одна
-   ось веса вместо четырёх статических начертаний даёт ровную лестницу
-   400→500→600→700 без скачков плотности, а ось оптического размера (`opsz`)
-   подтягивает начертание под кегль — крупные метрики и 11-пиксельные подписи
-   в таблице получают разный рисунок буквы, а не один, растянутый на оба.
+   Пять осей из одного файла (~247 КБ woff2):
+     opsz  8–45  optical size  — адаптация рисунка буквы под кегль
+     GEOM  0–100 geometric form — 0 a11y / 25 ui-default / 50 brand / 100 geo
+     wght  400–700 weight      — реальная лестница, не Faux Bold
+     YTAS  720–800 ascenders    — высота прописных, не влияет на line-height
+     SHRP  0–100 sharpness      — острые углы, FUTURA-look
 
-   Кириллицы в DM Sans нет ВООБЩЕ — ни в раздаче, ни у Google (latin и
-   latin-ext). Поэтому он появился здесь только вместе с переводом интерфейса
-   на английский; до перевода он свалил бы весь русский текст в системный
-   шрифт. Появится русская локаль — сюда придётся вернуться.
+   «Разнообразие» в этом файле — комбинации этих осей. body идёт в UI-нейтрали
+   (opsz 14, GEOM 25, wght 400), заголовки — в Cal Sans brand (opsz 45, GEOM 50,
+   wght 600), 11-пиксельные подписи — в micro (opsz 8). Все вариации берёт
+   браузер из одного файла через `font-variation-settings`, без сетевых
+   запросов на каждое начертание.
 
-   Futura PT убрана из текста: заголовки теперь тем же DM Sans, разница между
-   уровнями держится кеглем и весом, а не сменой семейства. Вордмарк в шапке
-   рисованный и от шрифта не зависит.
+   `font-optical-sizing: auto` в globals.css включает автоподстройку opsz
+   по отображаемому кеглю — крупная метрика получает opsz ближе к 45, мелкая
+   подпись — к 8, без отдельных CSS-правил на каждый размер. Без неё оси
+   остаются явными (`font-variation-settings`), но «магия» не работает.
 
-   Техническое — Geist Mono. Идентификаторы, JSON и шаблоны нейминга обязаны
-   стоять по сетке целиком, а не только цифрами: `act_1769335884224328` и
-   `hiu/7--[GEO]--[ACT]` в пропорциональном шрифте не читаются.
-
-   `next/font/google` скачивает шрифт при СБОРКЕ и раздаёт со своего домена:
-   панель по-прежнему открывается офлайн, к Google на лету никто не ходит. */
-const sans = DM_Sans({
-  variable: "--font-dm",
+   next/font/local инлайнит woff2 в CSS при build — Vercel отдаёт его
+   с Next-сервера, отдельный хостинг / CORS не нужны. */
+const calSans = localFont({
+  variable: "--font-cal-sans",
   display: "swap",
-  subsets: ["latin"],
-  // Обе оси явно: без `opsz` Next возьмёт только вес, и вариативность
-  // выродится в обычный шрифт с одной ступенью.
-  axes: ["opsz"],
-});
-const mono = localFont({
-  variable: "--font-geist-mono",
-  display: "swap",
-  src: [
-    { path: "../public/fonts/GeistMono-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../public/fonts/GeistMono-Medium.woff2", weight: "500", style: "normal" },
-  ],
+  src: "./fonts/CalSansVF.woff2",
 });
 
 export const metadata: Metadata = {
@@ -83,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable}`}
+      className={calSans.variable}
       data-theme="light"
       suppressHydrationWarning
     >
