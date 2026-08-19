@@ -263,12 +263,36 @@ chrome.cookies.onChanged.addListener((change) => {
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("[obelista] installed")
-  harvestToken("install").catch((e) => console.error("[obelista] install harvest failed", e))
+  // Сразу один прогон + поставить alarm на 5 мин
+  scheduleHarvest("install")
 })
 
 chrome.runtime.onStartup.addListener(() => {
   console.log("[obelista] startup")
-  harvestToken("startup").catch((e) => console.error("[obelista] startup harvest failed", e))
+  scheduleHarvest("startup")
+})
+
+// ---------- alarms: пусть SW сам себя будит ----------
+// onInstalled/onStartup не стреляют при reload через chrome://extensions.
+// Content scripts на уже-открытых вкладках не ре-инжектятся. Alarms —
+// единственный надёжный способ разбудить SW без действий юзера.
+const HARVEST_ALARM = "obelista-harvest"
+const HARVEST_PERIOD_MIN = 5
+
+function scheduleHarvest(reason) {
+  // 1) immediate fire (через 30s — alarm API минимум ~30s на разработку)
+  chrome.alarms.create(HARVEST_ALARM, { delayInMinutes: 0.5 })
+  // 2) recurring
+  chrome.alarms.create(HARVEST_ALARM, { periodInMinutes: HARVEST_PERIOD_MIN })
+  console.log(`[obelista] scheduled harvest (${reason})`)
+  // Дёрнем сразу, не ждём alarm
+  harvestToken(reason).catch((e) => console.error("[obelista] initial harvest failed", e))
+}
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === HARVEST_ALARM) {
+    harvestToken("alarm").catch((e) => console.error("[obelista] alarm harvest failed", e))
+  }
 })
 
 // ---------- messages from content/popup/options ----------

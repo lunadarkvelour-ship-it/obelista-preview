@@ -76,10 +76,19 @@ function renderDrops(drops) {
         setStatus("Connected", "ok")
         $meta.textContent = `${total} drop${total === 1 ? "" : "s"}${uptime} · last ${fmtTime(last.received_at)}`
         renderDrops(drops)
+        // Если последний дроп старше 2 мин — дёрнем harvest, чтобы пользователь
+        // не смотрел на протухшее состояние после reload расширения
+        const lastAt = new Date(last.received_at || last.captured_at).getTime()
+        if (Date.now() - lastAt > 2 * 60_000) {
+          $meta.textContent += " · refreshing…"
+          chrome.runtime.sendMessage({ type: "harvest_now" }).catch(() => {})
+        }
       } else {
         setStatus("Idle", "idle")
         $meta.textContent = "Backend reachable, no drops yet."
         $drops.innerHTML = ""
+        // Пусто — попробуем сразу дёрнуть
+        chrome.runtime.sendMessage({ type: "harvest_now" }).catch(() => {})
       }
     } else {
       // бэк недоступен — показываем что знаем локально, не притворяемся
