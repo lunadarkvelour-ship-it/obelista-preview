@@ -1,10 +1,16 @@
 "use client";
 
-/** Тултип = coss Tooltip под RAC-обёрткой.
+/** Тултип = coss Tooltip под тонкой обёрткой-сахаром.
  *
- *  Наружу — прежний сахар: `<Tip content="..." placement="..." delay={500}>
- *  {trigger}</Tip>`. Потребители — RefreshButton (button), PeriodPicker
- *  (span), Topbar (coss Button), AccountsView (button).
+ *  Наружу — единственный экспорт: `<Tip content="..." placement="..." delay={500}>
+ *  {trigger}</Tip>`. Потребители — RefreshButton (button), PeriodPicker (span),
+ *  Topbar (coss Button), AccountsView (button). Каждый из них — ровно один
+ *  триггер с подсказкой, и городить coss-композицию в каждом не имело бы смысла:
+ *  четыре обёртки `Tooltip.Root > Tooltip.Trigger render={x} + Portal + Positioner
+ *  + Popup` на 4 триггера превратили бы каждый вызов в 12 строк JSX, а сахар
+ *  убирает повтор. Если кому-то понадобится больший контроль — он берёт
+ *  `@base-ui/react/tooltip` напрямую; здесь мы не подменяем coss, а только
+ *  убираем копипасту.
  *
  *  Внутри — coss Tooltip.Root/Trigger/Portal/Positioner/Popup. Триггер
  *  передаётся в Tooltip.Trigger через `render` — это идиома coss, чтобы не
@@ -55,9 +61,3 @@ export function Tip({ content, children, placement, delay = 500 }: TipProps) {
     </BaseTooltip.Root>
   );
 }
-
-/** Голая coss-обёртка. Старый шим реэкспортировал RAC Tooltip/TooltipTrigger —
- *  это были внутренности шима, потребители их не импортировали. Сохранены
- *  как тонкие алиасы на coss для совместимости с любым возможным внешним кодом. */
-export const Tooltip = BaseTooltip.Root;
-export const TooltipTrigger = BaseTooltip.Trigger;

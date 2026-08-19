@@ -12,7 +12,6 @@
  */
 import * as React from "react";
 import { Menu as BaseMenu } from "@base-ui/react/menu";
-import { Popover } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 /** onAction на Menu → onClick на MenuItem: провайдим через контекст. */
@@ -181,11 +180,6 @@ export function SubmenuTrigger({ children }: { children: React.ReactNode }) {
     </BaseMenu.SubmenuTrigger>
   );
 }
-
-/** Backward-compat: старый MenuPopover — попап-контейнер вокруг меню. В новой
- *  модели не нужен (MenuTrigger сам строит попап), оставлен как тонкая
- *  обёртка для редких случаев ручного монтажа. */
-export { Popover as MenuPopover };
 
 /** Backward-compat: старый MenuHeader — заголовок секции вне группы. В coss
  *  эквивалент — `Menu.GroupLabel`, но для разделов без группы он не нужен.
