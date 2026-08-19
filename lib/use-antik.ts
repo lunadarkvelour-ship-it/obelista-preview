@@ -21,9 +21,15 @@
  * Пустой список — сам по себе честный ответ, а не поломка: локальный API
  * антидетекта слушает `127.0.0.1` на машине оператора, и на сервере профилей
  * нет и быть не может.
+ *
+ * Запрос уехал в TanStack Query: `tick` + `useEffect` тут был ровно тем, для
+ * чего Query придуман. Кэш живёт в QueryClient, `reload` = `refetch`,
+ * `isFetching` = старое `loading`. UI-состояние (форма, выбор профиля)
+ * остаётся в zustand, как и было — это разные слои.
  */
 
 import * as React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { api, type Social } from "@/lib/analytics";
 import { профилиДляБилдера, type ПрофильБилдера } from "@/lib/antik-profiles";
 
@@ -47,40 +53,30 @@ export interface Antik {
 }
 
 export function useAntik(): Antik {
-  const [rows, setRows] = React.useState<Social[]>([]);
-  const [reachable, setReachable] = React.useState(true);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-  const [tick, setTick] = React.useState(0);
+  const query = useQuery({
+    queryKey: ["antik", "socials"] as const,
+    queryFn: () => api.socials(),
+    /* Полинг не нужен: данные и так обновляются при ручном reload или при
+       переоценке снапшота (см. `useQuery` в AppShell). 30s staleTime из
+       провайдера подхватывается автоматически, дублировать не стали. */
+  });
 
-  React.useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    api
-      .socials()
-      .then((got) => {
-        if (!alive) return;
-        setRows(got.socials);
-        setReachable(true);
-        setError(null);
-      })
-      .catch((e) => {
-        if (!alive) return;
-        setReachable(false);
-        setError(e instanceof Error ? e.message : String(e));
-      })
-      .finally(() => alive && setLoading(false));
-    return () => {
-      alive = false;
-    };
-  }, [tick]);
-
+  const rows: Social[] = query.data?.socials ?? [];
+  const reachable = !query.error;
+  const error = query.error
+    ? query.error instanceof Error
+      ? query.error.message
+      : String(query.error)
+    : null;
   const ready = reachable;
 
   /* Кто существует, решает `lib/antik-profiles`: правило одно на продукт и
      проверяемо тестом, а не спрятано в хуке, куда тестовый рендер не доходит. */
   const { профили, подтверждениеЕсть } = React.useMemo(
-    () => (ready ? профилиДляБилдера(rows) : { профили: [], подтверждениеЕсть: false }),
+    () =>
+      ready
+        ? профилиДляБилдера(rows)
+        : { профили: [], подтверждениеЕсть: false },
     [rows, ready],
   );
 
@@ -89,8 +85,10 @@ export function useAntik(): Antik {
     ready,
     profiles: профили,
     подтверждениеЕсть,
-    loading,
+    loading: query.isFetching,
     error,
-    reload: () => setTick((t) => t + 1),
+    reload: () => {
+      void query.refetch();
+    },
   };
 }
