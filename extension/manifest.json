@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Obelista Ingest",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Передаёт user_token и состояние Ads Manager в obelista-preview",
   "permissions": ["cookies", "storage", "tabs", "scripting", "alarms"],
   "host_permissions": [

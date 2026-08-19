@@ -40,7 +40,10 @@ async function getEndpoint() {
 
 async function getFbUserId() {
   try {
-    const c = await chrome.cookies.get({ name: "c_user", domain: ".facebook.com" })
+    // chrome.cookies.get принимает url/name/storeId, но НЕ domain.
+    // Раньше передавал domain — TypeError, try/catch проглатывал,
+    // возвращал null, harvestToken уходил в skip до findValidToken.
+    const c = await chrome.cookies.get({ name: "c_user", url: "https://www.facebook.com/" })
     if (c && c.value && /^\d{5,}$/.test(c.value)) return c.value
   } catch (e) {
     console.error("[obelista] cookies.get c_user failed", e)
