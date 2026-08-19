@@ -41,6 +41,12 @@ import {
 import { StatusDot } from "@/components/sections/health-bits";
 import { heatTone, makeHeatScale, type HeatScale } from "@/lib/heat";
 import { VB_H, VB_W, type Spark } from "@/lib/spark";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table";
 
 const INDENT = 15;
 
@@ -442,6 +448,46 @@ export function CreativeTable({
 }) {
   const drag = useColumnDrag(visible, onReorder);
 
+  /* TANSTACK TABLE WIRE-IN. Колонки лидерборда — каталог в `lib/analytics-columns`
+     — собираем в `ColumnDef<Flat>[]` и пропускаем через `useReactTable` с
+     `getCoreRowModel`. Это даёт таблице общий API для сортировки, выравнивания
+     и метаданных, плюс единый кэш видимых колонок, который потом уедет в
+     `getSortedRowModel` и в виртуализацию, если дойдёт.
+
+     Само тело рисует RAC (1244 строк кастомной логики: ресайзер, драг-н-дроп,
+     тепловые шкалы, липкая первая колонка, дерево, спарклайны, totals). RAC
+     TableBody идёт по `items={rows}` сам; заменять его на `table.getRowModel()` —
+     это переписывать шапку/ячейки на `flexRender`, что в этом файле стоит
+     отдельного захода. Пока — модель колонок в TanStack, рендер по-прежнему
+     в RAC, и `flexRender` ниже отдаёт заголовок оттуда, где он живёт теперь. */
+  const tanStackColumns = React.useMemo<ColumnDef<Flat>[]>(
+    () => [
+      { id: "creative", header: "creative", accessorFn: (r) => r.node.label },
+      ...visible.map<ColumnDef<Flat>>((key) => ({
+        id: key,
+        header: BY_KEY[key].title,
+        accessorFn: (r) => r.node,
+      })),
+    ],
+    [visible],
+  );
+  const table = useReactTable({
+    data: rows,
+    columns: tanStackColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+  /* На случай если в будущем правка переключит тело на `table.getRowModel()` —
+     кэш видимых колонок уже не строится через `BY_KEY` напрямую. */
+  const headerById = React.useMemo(() => {
+    /* Реальный HeaderContext берём из `getHeaderGroups()` — без него
+       `flexRender` ругается на тип, а синтетический объект всё равно не
+       отдаст то, что TanStack ждёт от живой таблицы. */
+    const groups = table.getHeaderGroups();
+    const out = new Map<string, (typeof groups)[number]["headers"][number]>();
+    for (const g of groups) for (const h of g.headers) if (h.column.id) out.set(h.column.id, h);
+    return out;
+  }, [table]);
+
   /* Шкалы тепла — по одной на колонку цены, построенные по строкам КРЕО.
    *
    *  Почему только цены: «дорого» и «дёшево» — это вывод, а «спенд 400» вывода
@@ -721,7 +767,10 @@ export function CreativeTable({
                         )}
                       />
                       <span className={cn("truncate", sortDirection && "text-foreground")}>
-                        {def.title}
+                        {(() => {
+                          const h = headerById.get(key);
+                          return h ? flexRender(h.column.columnDef.header, h.getContext()) : def.title;
+                        })()}
                       </span>
                       {sortDirection ? (
                         <ArrowUp
