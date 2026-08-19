@@ -1,21 +1,28 @@
 "use client";
 
-/** Подпись поля — те же классы, что у Label в tailwind-стартере (Field.tsx). */
+/** Подпись поля. Внутренность — голый <label> в coss-стиле через
+ *  useRender. Старый RAC Label заменён на нативный <label>: coss-Label
+ *  даёт ту же логику (useRender), но не тащит react-aria в зависимости.
+ */
 import * as React from "react";
-import { Label as RacLabel } from "react-aria-components";
+import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@/lib/utils";
 
 export const Label = React.forwardRef<
   HTMLLabelElement,
-  React.ComponentPropsWithoutRef<typeof RacLabel>
->(({ className, ...props }, ref) => (
-  <RacLabel
-    ref={ref}
-    className={cn(
+  useRender.ComponentProps<"label">
+>(({ className, render, ...props }, ref) => {
+  const defaultProps = {
+    className: cn(
       "w-fit cursor-default select-none font-sans text-sm font-medium text-neutral-600 dark:text-neutral-300",
       className
-    )}
-    {...props}
-  />
-));
+    ),
+  };
+  return useRender({
+    defaultTagName: "label",
+    ref,
+    render,
+    props: { ...defaultProps, ...props } as Record<string, unknown>,
+  });
+});
 Label.displayName = "Label";
