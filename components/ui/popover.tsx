@@ -1,5 +1,13 @@
 "use client";
 
+/** Поповер = coss Popover из @base-ui/react/popover.
+ *
+ *  Уже coss-исходник: внешний API — Popover/PopoverTrigger/PopoverPopup/
+ *  PopoverContent/PopoverClose/PopoverTitle/PopoverDescription + createHandle
+ *  и сам PopoverPrimitive. Сейчас потребителей нет (0 импортов в app/ и
+ *  components/); использующие поповер листы пока ходят через @/components/rac/
+ *  Popover. Когда они переедут на этот шим, оборачивать ничего не придётся —
+ *  экспортируемые имена уже совпадают с канонической схемой coss. */
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 import type React from "react";
 import { cn } from "@/lib/utils";
