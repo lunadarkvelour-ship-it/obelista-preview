@@ -15,7 +15,21 @@
  * `prefers-reduced-motion` уважается через `motion-safe:` — человеку, который
  * выключил анимации в системе, мигающий блок на весь экран не помощь.
  */
+import { Spinner as CossSpinner } from "@/components/coss";
 import { cn } from "@/lib/utils";
+
+/** Крутилка на coss Spinner — для мест, где полоски выглядят перебором
+ *  (одиночная кнопка в углу, инлайн уведомление). Тот же визуальный язык,
+ *  что у coss-Button при `loading` — единый мотив по всему приложению.
+ *  Загрузка/ЗагрузкаВнутри ниже — старый дизайн с тремя полосами; оба
+ *  экспорта живут, миграция места за местом. */
+export function Loader({ className }: { className?: string }) {
+  return (
+    <CossSpinner
+      className={cn("size-4 text-muted-foreground motion-reduce:animate-none", className)}
+    />
+  );
+}
 
 export function Загрузка({
   подпись,
