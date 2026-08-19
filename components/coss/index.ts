@@ -36,6 +36,7 @@ export { Input, type InputProps } from "./Input";
 export { Label } from "./Label";
 export { Textarea, type TextareaProps } from "./Textarea";
 export { Checkbox, CheckboxPrimitive } from "./Checkbox";
+export { CheckboxGroup, CheckboxGroupPrimitive } from "./CheckboxGroup";
 export { Switch, SwitchPrimitive } from "./Switch";
 export { Badge, badgeVariants, type BadgeProps } from "./Badge";
 export { Skeleton } from "./Skeleton";

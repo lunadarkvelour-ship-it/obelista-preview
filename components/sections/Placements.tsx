@@ -3,7 +3,7 @@
 import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
-import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
+import { Checkbox, CheckboxGroup } from "@/components/coss";
 import { Button } from "@/components/ui/button";
 import { PLATFORMS } from "@/lib/constants";
 import { PLACEMENTS, parsePositions, splitPositions } from "@/lib/placements";
@@ -58,9 +58,10 @@ export function Placements() {
           <Row label="Platforms">
             <CheckboxGroup aria-label="Platforms" value={form.plats} onChange={setPlats} className="flex-1">
               {PLATFORMS.map((p) => (
-                <Checkbox key={p.value} value={p.value} className="text-muted-foreground selected:text-foreground">
+                <label key={p.value} className="inline-flex items-center gap-2 font-sans text-sm text-muted-foreground has-data-checked:text-foreground">
+                  <Checkbox value={p.value} aria-label={p.label} className="text-muted-foreground data-checked:text-foreground" />
                   {p.label}
-                </Checkbox>
+                </label>
               ))}
             </CheckboxGroup>
           </Row>

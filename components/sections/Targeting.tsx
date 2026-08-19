@@ -5,7 +5,7 @@ import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/coss";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/coss";
 import { GENDERS, DEVICES, USER_OS } from "@/lib/constants";
 import { osVersion } from "@/lib/build-spec";
 
@@ -62,9 +62,10 @@ export function Targeting() {
         </Hint>
       )}
       <Row label="Advantage+ audience">
-        <Checkbox checked={form.advAud} onCheckedChange={(v) => set("advAud", !!v)}>
+        <label className="inline-flex items-center gap-2 font-sans text-sm">
+          <Checkbox checked={form.advAud} onCheckedChange={(v) => set("advAud", !!v)} />
           <Hint>on (off by default — that is what we actually run)</Hint>
-        </Checkbox>
+        </label>
       </Row>
     </SectionCard>
   );

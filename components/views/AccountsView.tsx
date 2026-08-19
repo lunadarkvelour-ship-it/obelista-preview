@@ -35,7 +35,7 @@ import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { api } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/coss";
 import { Tip } from "@/components/ui/tooltip";
 import { ColResizer } from "@/components/sections/ColResizer";
 import { parseAccQuery, unmatched } from "@/lib/acc-query";
