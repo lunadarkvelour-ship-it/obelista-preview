@@ -8,7 +8,7 @@ const $test = document.getElementById("test")
 const $drop = document.getElementById("drop")
 const $out = document.getElementById("out")
 
-const DEFAULT_ENDPOINT = "https://obelista-preview.vercel.app/api/extension/ingest"
+const DEFAULT_ENDPOINT = "https://obelista-preview-chi.vercel.app/api/extension/ingest"
 
 function render(obj, cls) {
   $out.className = cls || ""

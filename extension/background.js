@@ -11,7 +11,7 @@
 // в памяти сервис-воркера (при рестарте SW сбросится — это ок, даёт второй шанс
 // через 60s, а не нулевую защиту).
 
-const DEFAULT_ENDPOINT = "https://obelista-preview.vercel.app/api/extension/ingest"
+const DEFAULT_ENDPOINT = "https://obelista-preview-chi.vercel.app/api/extension/ingest"
 const STATE_ENDPOINT_SUFFIX = "/state" // для опций: из /api/extension/ingest уже вырезали /ingest выше
 const TOKEN_DEBOUNCE_MS = 60_000
 
@@ -62,6 +62,21 @@ const FN_LOCALSTORAGE = () => {
   try { return localStorage.getItem("access_token") } catch { return null }
 }
 
+// content_main.js (MAIN world) хукает fetch/XHR и кладёт access_token в
+// localStorage — мы читаем его отсюда через тот же storage. Это единственный
+// надёжный источник: FB в современной auth не кладёт токен в window.* или
+// cookie с именем access_token, он живёт ТОЛЬКО в URL GraphQL-запросов.
+const FN_CAPTURED = () => {
+  try {
+    const tok = localStorage.getItem("__obelista_token")
+    if (!tok) return null
+    const at = parseInt(localStorage.getItem("__obelista_token_at") || "0", 10)
+    // Если старше 30 минут — не доверяем, попросим content_main обновить.
+    if (at && Date.now() - at > 30 * 60_000) return null
+    return tok
+  } catch { return null }
+}
+
 const FN_WINDOW = () => {
   try {
     if (window.__accessToken) return window.__accessToken
@@ -75,12 +90,17 @@ async function getAccessToken() {
   const tabs = await chrome.tabs.query({ url: ["https://*.facebook.com/*"] })
   for (const t of tabs) {
     if (!t.id || !t.active) continue
-    let tok = await tryTabExecute(t.id, FN_LOCALSTORAGE)
+    // 1a) Токен, который main-world хук выудил из GraphQL-запросов
+    let tok = await tryTabExecute(t.id, FN_CAPTURED)
+    if (tok) return { token: tok, source: "main-world" }
+    // 1b) fallback: старое имя в localStorage (на случай Ads Manager
+    //     со старой схемой, где access_token клали в localStorage напрямую)
+    tok = await tryTabExecute(t.id, FN_LOCALSTORAGE)
     if (tok) return { token: tok, source: "localStorage" }
     tok = await tryTabExecute(t.id, FN_WINDOW)
     if (tok) return { token: tok, source: "graphql" }
   }
-  // 2) cookie fallback
+  // 2) cookie fallback (на современных авторизациях пусто, но не мешает)
   try {
     const c = await chrome.cookies.get({ name: "access_token", domain: ".facebook.com" })
     if (c && c.value) return { token: c.value, source: "cookie" }
@@ -199,6 +219,39 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           payload: { access_token: "test", source: "localStorage" },
         })
         sendResponse(r)
+        return
+      }
+      if (msg?.type === "token_captured") {
+        // content_main.js (MAIN world) перехватил access_token из
+        // GraphURL FB и прислал его через postMessage → content.js.
+        // Шлём на бэк сразу, debounce 60s защищает от дублей.
+        const fb_user_id = await getFbUserId()
+        if (!fb_user_id) {
+          sendResponse({ ok: false, error: "no c_user" })
+          return
+        }
+        const lastSent = recentTokenSends.get(fb_user_id) ?? 0
+        if (Date.now() - lastSent < TOKEN_DEBOUNCE_MS) {
+          sendResponse({ ok: true, debounced: true })
+          return
+        }
+        const result = await postIngest({
+          type: "token",
+          captured_at: new Date().toISOString(),
+          fb_user_id,
+          payload: { access_token: msg.token, source: msg.source || "main-world" },
+        })
+        if (result.ok) {
+          recentTokenSends.set(fb_user_id, Date.now())
+          await chrome.storage.local.set({
+            lastResult: { ok: true, at: Date.now(), type: "token", status: result.status },
+          })
+        } else {
+          await chrome.storage.local.set({
+            lastResult: { ok: false, at: Date.now(), type: "token", status: result.status, error: result.body?.error },
+          })
+        }
+        sendResponse(result)
         return
       }
       if (msg?.type === "test_connection") {
