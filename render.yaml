@@ -1,0 +1,21 @@
+# Render Web Service — Zaliv Builder panel (Next.js).
+# Deploy: connect this repo, Render reads render.yaml. The panel is a spec BUILDER;
+# real uploads run locally via the operator's antidetect + MCP, not on Render.
+services:
+  - type: web
+    name: zaliv-panel
+    runtime: node
+    rootDir: panel
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    autoDeploy: false
+    envVars:
+      - key: NODE_VERSION
+        value: "22.11.0"
+      # Bearer token the local snapshot pusher must send to POST /api/snapshot.
+      - key: SNAPSHOT_TOKEN
+        sync: false
+      # Optional: remote URL the panel fetches the snapshot from (GET fallback).
+      - key: SNAPSHOT_URL
+        sync: false

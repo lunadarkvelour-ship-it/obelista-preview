@@ -1,0 +1,663 @@
+@import "tailwindcss";
+/* Вариантные селекторы React Aria (hover:/pressed:/selected:/entering:/…). */
+@plugin "tailwindcss-react-aria-components";
+/* animate-in/out утилиты — ими анимируется tailwind-стартер доков. */
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Панель одета в Tailwind-стартер react-aria (components/rac/*) — это код со
+   вкладки «Tailwind» в доках. Здесь только:
+   1) перекраска его blue-шкалы в акцент (лайм #CBFB8F по умолчанию,
+      свотчи в шапке пишут data-accent);
+   2) мост токенов панели (bg-elevated, text-muted-foreground…) на палитру
+      стартера через light-dark() — тёмная тема едет от html.dark/color-scheme.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* 1. Акцент: подмена blue-шкалы Tailwind, которой красится весь стартер.
+ *
+ * Акцент ОДИН — фиолетовый. Раньше их было три (синий, лайм, фиолетовый) и
+ * выбирались они свотчами в шапке. Решение владельца 10.08: выбор убрать,
+ * оставить фиолетовый, в шапке — только светлая/тёмная тема.
+ *
+ * Три акцента стоили дороже, чем казалось. Лайм был единственным СВЕТЛЫМ, и
+ * ради него весь остальной код обзаводился развилками: тёмные чернила на
+ * заливке вместо белого текста, свои hover/pressed вместо ступеней 700/800,
+ * градиентная заливка кнопки против плоской у двух других, правила с `!`
+ * против специфичности дропдауна. Каждая такая развилка — место, где светлая
+ * тема расходится с тёмной и это замечают через месяц.
+ *
+ * Фиолетовый тёмный: белый на 600 даёт 5.7:1, сам 700 как текст на белом —
+ * 7.1:1. Ни одна подпорка больше не нужна, и ветки удалены целиком.
+ *
+ * Имена переменных остаются `--color-blue-*`: на них ссылается сам стартер
+ * react-aria во всех своих компонентах. Переименовать их — это правка полусотни
+ * файлов ради названия, которое видно только здесь. */
+:root {
+  --color-blue-100: #ede9fe;
+  --color-blue-200: #ddd6fe;
+  --color-blue-300: #c4b5fd;
+  --color-blue-400: #a78bfa;
+  --color-blue-500: #8b5cf6;
+  --color-blue-600: #7c3aed;
+  --color-blue-700: #6d28d9;
+  --color-blue-800: #5b21b6;
+  --color-blue-900: #4c1d95;
+  --destructive-foreground: var(--color-red-700);
+  --info: var(--color-blue-500);
+  --info-foreground: var(--color-blue-700);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-700);
+  --warning: var(--color-amber-500);
+  --warning-foreground: var(--color-amber-700);
+}
+
+/* 1б. Нейтральная шкала: на ней держится ВЕСЬ стартер (поверхности, рамки,
+   текст). Переопределяем её целиком — так контраст правится в одном месте, а
+   не классами по компонентам. Смысл ступеней в тёмной теме зеркальный
+   (900 — глубокий фон, 100 — светлый текст), поэтому у неё свой набор. */
+:root, :root[data-theme="light"] {
+  --color-neutral-50: #fafafa;   /* фон вторичных кнопок */
+  --color-neutral-100: #f2f2f4;  /* hover вторичных */
+  --color-neutral-200: #e6e6eb;  /* pressed, разделители */
+  --color-neutral-300: #d7d7de;  /* рамки полей */
+  --color-neutral-400: #b4b4bd;  /* рамка на hover */
+  --color-neutral-500: #8d8d98;
+  --color-neutral-600: #63636e;  /* вторичный текст, подписи */
+  --color-neutral-700: #4a4a54;
+  --color-neutral-800: #2b2b31;  /* основной текст */
+  --color-neutral-900: #1c1c21;  /* заголовки */
+}
+:root[data-theme="dark"] {
+  --color-neutral-50: #0d0d0e;
+  --color-neutral-100: #ededf0;  /* светлый текст (стартер зовёт его в dark:) */
+  --color-neutral-200: #dedee4;
+  --color-neutral-300: #c2c2cb;
+  --color-neutral-400: #9a9aa6;  /* приглушённый текст */
+  --color-neutral-500: #6e6e7a;
+  --color-neutral-600: #3d3d45;  /* hover поверхностей */
+  --color-neutral-700: #2e2e35;  /* рамки */
+  --color-neutral-800: #212126;  /* вторичные кнопки, приподнятые блоки */
+  --color-neutral-900: #17171a;  /* поверхность карточек и поповеров */
+}
+
+/* 2. Мост токенов панели → палитра стартера (light-dark ведёт color-scheme).
+
+   Контраст поверхностей: фон страницы на ступень темнее рабочих поверхностей,
+   поэтому карточки/поповеры «всплывают» без теней и рамок-коробок. В тёмной —
+   то же правило: канвас #0d0d0d, поверхность #171717, приподнятое #1f1f1f. */
+:root {
+  /* --font-dm (DM Sans, вариативный) и --font-geist-mono приезжают из
+     next/font. Семейство на интерфейс одно: разницу между заголовком и
+     подписью держат кегль и вес, а не смена шрифта. Двух гарнитур хватает —
+     текстовая и моноширинная (правило «максимум два шрифта»). */
+  --font-heading: var(--font-dm), system-ui, sans-serif;
+  --font-sans: var(--font-dm), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Теперь это НАСТОЯЩИЙ моноширинный, а не текстовый шрифт с табличными
+     цифрами: id кабинетов, пиксели, JSON бандла и шаблоны нейминга стоят по
+     сетке целиком, а не только цифрами. */
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --background: light-dark(#f7f7f8, #0d0d0e);
+  --foreground: light-dark(#1c1c1f, #ededf0);
+  --card: light-dark(#ffffff, #171719);
+  --card-foreground: var(--foreground);
+  --popover: light-dark(#ffffff, #1c1c1f);
+  --popover-foreground: var(--foreground);
+  --elevated: light-dark(#f1f1f3, #212124);
+  --subtle: var(--elevated);
+  --hover: light-dark(#ebebef, #26262a);
+  --secondary: light-dark(#f1f1f3, #212124);
+  --secondary-foreground: var(--foreground);
+  /* Три ступени приглушённого текста вместо одной с дробными прозрачностями.
+   *
+   * Дыра в контрасте была не в самом токене — он давал 5.26 в светлой теме и
+   * 6.67 в тёмной, — а в том, что поверх него по компонентам расставлены
+   * `text-muted-foreground/70`, `/60`, `/50`. Посчитано: это 2.90, 2.42 и 2.04
+   * при норме 4.5 для мелкого текста. Плейсхолдер поиска и прочерки «нет
+   * данных» читались хуже всего, а это ровно то, на что смотрят чаще всего.
+   *
+   * Подкручивать проценты в двадцати местах бессмысленно — заведены честные
+   * роли. `faint` для текста, который надо ПРОЧЕСТЬ (подсказки, плейсхолдеры,
+   * второстепенные подписи). `ghost` для того, что читать не надо и не нужно:
+   * прочерк на месте отсутствующего числа — это отбивка, а не сообщение. */
+  --muted-foreground: light-dark(#5c5c67, #a8a8b4);  /* 6.60 / 7.61 */
+  --faint:            light-dark(#71717f, #8f8f9c);  /* 4.72 / 5.35 */
+  --ghost:            light-dark(#8e8e9a, #68686f);  /* 3.24 / 3.24 — прочерк «нет данных» */
+  /* Разделителю контраст не нужен, интерактивной рамке нужен: по ней целятся
+     и от неё ждут отклика на наведение. */
+  --border: light-dark(#e2e2e7, #2c2c31);
+  --border-strong: light-dark(#c2c2cb, #45454d);
+  --input: light-dark(#ffffff, #171719);
+
+  /* Роли акцента. У тёмных акцентов (blue/violet) всё сводится к самой шкале —
+     переопределяет их только лайм, см. блок [data-accent="lime"] выше. */
+  --primary: var(--color-blue-600);
+  --primary-hover: var(--color-blue-700);
+  --primary-pressed: var(--color-blue-800);
+  --primary-foreground: #ffffff;   /* текст НА заливке акцентом */
+  --primary-ink: var(--primary);   /* акцент КАК текст/иконка на поверхности */
+  --primary-soft: light-dark(var(--color-blue-100), color-mix(in oklab, var(--color-blue-700) 30%, transparent));
+  --primary-line: light-dark(var(--color-blue-200), var(--color-blue-900));
+  --accent: var(--primary);
+  --focus: light-dark(var(--color-blue-600), var(--color-blue-500));
+  --ring: var(--focus);
+
+  --success: light-dark(#15803d, #4ade80);
+  --success-foreground: light-dark(#ffffff, #052e16);
+  --success-soft: light-dark(#dcfce7, rgb(74 222 128 / 0.15));
+  --warning: light-dark(#a16207, #fbbf24);
+  --warning-foreground: light-dark(#ffffff, #271902);
+  --warning-soft: light-dark(#fef9c3, rgb(251 191 36 / 0.15));
+  --destructive: light-dark(#b91c1c, #f87171);
+  --destructive-foreground: light-dark(#ffffff, #2b0707);
+  --destructive-soft: light-dark(#fee2e2, rgb(248 113 113 / 0.14));
+
+  /* Концы тепловой шкалы в колонках цены — СВОЯ пара токенов, не `--success`
+     и `--destructive`.
+
+     Раньше тепло брало их напрямую, и это было двойное значение у одного
+     цвета: зелёный в проекте значит «здоровое, живое, собралось», красный —
+     «сломано, забанено, не отвечает». В таблице теми же двумя цветами
+     закрашивалась цена, где ничего не сломано — просто дороже. Перекрасить
+     тепло, не тронув статусы, было нельзя: один токен на два смысла.
+
+     Взяты концы фирменного градиента (фиолетовый → оранжевый). Направление
+     то же, что у любой тепловой шкалы: холодный конец — дёшево, тёплый —
+     дорого. Середина остаётся без заливки, её задаёт heat.ts.
+
+     Светлая тема берёт насыщенные ступени: над белым они идут через
+     `--heat-max` = 20% и дают читаемую пастель. Тёмная — яркие: над #171719
+     тот же процент от тёмного цвета не виден вовсе. */
+  /* Три стопа, а не два. Раньше шкала прыгала между холодным и горячим через
+     прозрачную середину, и столбец читался как два набора пятен вместо одного
+     непрерывного хода. Средний стоп берёт малиновый — он лежит между
+     фиолетовым и янтарным и в oklch, и в фирменном градиенте, так что переход
+     не проваливается в грязь. */
+  --heat-cold: light-dark(#7c3aed, #a78bfa);
+  --heat-mid:  light-dark(#db2777, #f472b6);
+  --heat-hot:  light-dark(#ea580c, #fb923c);
+
+  /* Подсветка выделенной СТРОКИ таблицы — свой токен, не общий primary-soft.
+     Тот рассчитан на кнопку и чипс: маленькое пятно, которое обязано быть
+     заметным. Строк же выделяют десятками подряд, и на той же плотности
+     таблица превращается в сплошную полосу, поверх которой не читаются
+     цифры. Плюс акцентов три, и лаймовый в тёмной теме давал откровенно
+     грязную оливковую заливку — из-за неё выделение и выглядело кривым.
+
+     Берём самую светлую ступень акцента с малой прозрачностью, и в тёмной
+     теме вдвое меньше: светлое пятно на почти чёрном заметно сильнее, чем
+     цветное на белом при той же альфе.
+
+     С единственным фиолетовым акцентом у заливки появился соперник: холодный
+     конец тепловой шкалы — тот же фиолетовый. Пока акцентов было три,
+     совпадение случалось у одного из них; теперь оно постоянное, и «дешёвая
+     ячейка» становится неотличима от «отмеченной строки». Поэтому заливка
+     ослаблена, а основную нагрузку взял рельс у левого края
+     (`--row-selected-bar` ниже). Способ, а не оттенок — цвет-то один.
+
+     Ослаблять до нейтральной оказалось нельзя: 9% пропадали под собственным
+     фоном строки. Строки ветки стоят на `--elevated`, и подсветка обязана
+     пробиться сквозь него, а не сквозь белый лист. Замерено на живой панели —
+     выделенная строка в развороте переставала отличаться от соседних вовсе. */
+  --row-selected: light-dark(
+    color-mix(in oklab, var(--color-blue-600) 18%, transparent),
+    color-mix(in oklab, var(--color-blue-400) 14%, transparent)
+  );
+  --row-selected-hover: light-dark(
+    color-mix(in oklab, var(--color-blue-600) 26%, transparent),
+    color-mix(in oklab, var(--color-blue-400) 20%, transparent)
+  );
+  --row-selected-bar: var(--primary-ink);
+
+}
+
+/* Потолок насыщенности тепловой подложки в колонках цены и доля, которую
+   получает середина шкалы.
+
+   Разные по темам не ради красоты: в светлой `--heat-cold` это насыщенный
+   фиолетовый #7c3aed, и 32% его над белым дают читаемую пастель; в тёмной это
+   светлый #a78bfa, и те же 32% над #171719 дают блок, который перебивает само
+   число. Один множитель на обе темы физически не может быть верным.
+
+   Через light-dark() это НЕ выражается: она определена только для цветов, а
+   тут процент. Подставленная в color-mix, такая переменная делает всё
+   выражение невалидным, и подложка пропадает целиком — проверено, тепло
+   исчезло со всей таблицы. Поэтому обычными селекторами тем.
+
+   Потолок поднят с 20/11 до 32/18. Прежние числа были перестраховкой: текст
+   #1c1c1f поверх самой насыщенной подложки даёт 10.3:1 на фиолетовом, 10.3 на
+   малиновом и 11.4 на янтарном при норме 4.5. Читаемость страдала не от
+   насыщенности, а от бледности — два соседних значения было не различить.
+
+   `--heat-floor` — доля потолка, которую получает СЕРЕДИНА шкалы. Ноль означал,
+   что основная масса строк остаётся неокрашенной и «градиент» виден только на
+   хвостах. 30% — это едва заметная подложка, по которой глаз всё же достраивает
+   непрерывный ход, но которая не превращает таблицу в мозаику. */
+:root, :root[data-theme="light"] { --heat-max: 32%; --heat-floor: 0.3; }
+:root[data-theme="dark"] { --heat-max: 18%; --heat-floor: 0.3; }
+
+/* Кружок состояния кабинета. Живёт на листе «Кабинеты» и переезжает в разворот
+   аналитики — двух разных кружков про одно и то же быть не должно.
+
+   Четвёртое состояние заведено явно и это не педантизм: статус приходит из
+   снапшота, а снапшот собирается по браузерным профилям и покрывает не все.
+   Зелёный кружок там, где мы просто не спрашивали, — ровно то враньё, против
+   которого весь лист и затевался. */
+:root {
+  --dot-live:    var(--success);
+  --dot-warn:    var(--warning);
+  --dot-dead:    var(--destructive);
+  --dot-unknown: var(--ghost);
+}
+
+/* Спарклайн подневного спенда в колонке спенда.
+ *
+ * Цвет берётся ПО ТРЕНДУ, а не из акцента. Раньше все линии были одного цвета,
+ * и столбец превращался в ряд одинаковых загогулин: чтобы понять, разгоняется
+ * крео или гаснет, надо было вчитываться в форму. Теперь направление читается
+ * цветом за то же время, что и сама заливка цены рядом, — и той же палитрой,
+ * поэтому два сигнала не спорят: янтарный значит «набирает» в обоих местах.
+ *
+ * Готовые цвета, а не проценты: значения уходят прямо в атрибуты SVG
+ * `fill`/`stroke`, а те процент не принимают. Доли разные по темам по той же
+ * причине, что у тепла: над белым и над #171719 одна альфа даёт то бледную
+ * кляксу, то пятно, которое перебивает само число. */
+:root, :root[data-theme="light"] {
+  --spark-up:   color-mix(in oklch, var(--heat-hot) 72%, transparent);
+  --spark-down: color-mix(in oklch, var(--heat-cold) 66%, transparent);
+  --spark-flat: color-mix(in oklch, var(--muted-foreground) 58%, transparent);
+  --spark-fill-up:   color-mix(in oklch, var(--heat-hot) 15%, transparent);
+  --spark-fill-down: color-mix(in oklch, var(--heat-cold) 14%, transparent);
+  --spark-fill-flat: color-mix(in oklch, var(--muted-foreground) 11%, transparent);
+  /* Базовая линия нуля. Без неё горка висит в воздухе и «просело до нуля» не
+     отличается от «просело вдвое». */
+  --spark-base: var(--border-strong);
+}
+:root[data-theme="dark"] {
+  --spark-up:   color-mix(in oklch, var(--heat-hot) 62%, transparent);
+  --spark-down: color-mix(in oklch, var(--heat-cold) 58%, transparent);
+  --spark-flat: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  --spark-fill-up:   color-mix(in oklch, var(--heat-hot) 12%, transparent);
+  --spark-fill-down: color-mix(in oklch, var(--heat-cold) 11%, transparent);
+  --spark-fill-flat: color-mix(in oklch, var(--muted-foreground) 9%, transparent);
+  --spark-base: var(--border-strong);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-elevated: var(--elevated);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-ink: var(--primary-ink);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-line: var(--primary-line);
+  --color-accent: var(--accent);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-subtle: var(--subtle);
+  --color-hover: var(--hover);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+  --color-ghost: var(--ghost);
+  --color-dot-live: var(--dot-live);
+  --color-dot-warn: var(--dot-warn);
+  --color-dot-dead: var(--dot-dead);
+  --color-dot-unknown: var(--dot-unknown);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-focus: var(--focus);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-heading);
+  --animate-skeleton: skeleton 2s -1s infinite linear;
+  --color-info-foreground: var(--info-foreground);
+  --color-info: var(--info);
+  @keyframes skeleton {
+  to {
+    background-position: -200% 0;
+    }
+  }
+}
+
+/* Свой брейкпоинт для широких мониторов: на нём секции встают в три колонки.
+   Именно брейкпоинт, а не min-[1900px]: — произвольный вариант сортируется
+   раньше именованных, и xl:columns-2 перекрывал его на 2560px.
+   Значение обязательно в rem: остальные брейкпоинты Tailwind в rem, а при
+   смешении единиц сортировка ломается — правило снова уезжает выше xl. */
+@theme {
+  /* 2200px, а не 1900: на 1920 три колонки дают карточку в 450px, где строка
+     «подпись — поле» уже поджимается. Три колонки включаются там, где на них
+     реально есть место — на широком мониторе или при уменьшенном масштабе. */
+  --breakpoint-3xl: 137.5rem; /* 2200px */
+}
+
+/* ── Типографическая шкала ──
+   Раньше в разметке жило 14 разных кеглей ([9px]…[15px]) — от этого «то мелко,
+   то крупно». Здесь одна лестница, дальше в компонентах только эти классы:
+     2xs — мета и моно-подписи, xs — хинты, sm — вторичный текст,
+     base — основной текст и контролы, lg/xl — заголовки. */
+@theme {
+  --text-2xs: 0.6875rem;      /* 11px */
+  --text-2xs--line-height: 1.35;
+  --text-xs: 0.75rem;         /* 12px */
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.8125rem;       /* 13px */
+  --text-sm--line-height: 1.5;
+  --text-base: 0.875rem;      /* 14px — база стартера */
+  --text-base--line-height: 1.5;
+  --text-lg: 1rem;            /* 16px */
+  --text-lg--line-height: 1.4;
+  --text-xl: 1.1875rem;       /* 19px */
+  --text-xl--line-height: 1.3;
+  --text-2xl: 1.5rem;         /* 24px */
+  --text-2xl--line-height: 1.2;
+}
+
+/* Короткая анимация раскрытия собственных секций панели. */
+@theme {
+  --animate-pop-in: pop-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-in: fade-in 0.15s ease-out;
+
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+}
+
+@layer base {
+  * { border-color: var(--border); }
+  /* Масштаб гвоздём: 16px в корне на любом зуме/DPI — компоненты меряются в rem
+     от него, поэтому лестница кеглей везде одинаковая. */
+  html { color-scheme: light; font-size: 16px; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Кернинг и лигатуры — явно, а не «как повезёт с движком». */
+    font-feature-settings: "kern" 1, "liga" 1;
+    /* Главное ради чего брали вариативный DM Sans: ось оптического размера
+       сама меняет рисунок буквы под кегль. Крупная метрика получает узкие
+       формы и плотный ритм, 11-пиксельная подпись в таблице — раскрытые
+       и просторные. Без этой строки Safari берёт один рисунок на все кегли,
+       и мелкий текст залипает. */
+    font-optical-sizing: auto;
+    /* Абзац не оставляет одинокое слово на последней строке. */
+    text-wrap: pretty;
+  }
+  /* Заголовки — тот же DM Sans, отличается весом и трекингом. Геометрический
+     гротеск на крупном кегле рассыпается по буквам, поэтому трекинг
+     отрицательный и тем сильнее, чем крупнее строка. */
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    /* Заголовок ломается по смыслу, а не по остатку строки. */
+    text-wrap: balance;
+  }
+  /* Крупные кегли — плотнее, мелкие — просторнее. У DM Sans на 11-12px
+     строчные широкие: лишний трекинг там больше не нужен, он только рвал
+     слово на буквы. */
+  .text-2xl { letter-spacing: -0.022em; }
+  .text-xl  { letter-spacing: -0.018em; }
+  .text-lg  { letter-spacing: -0.012em; }
+  .text-2xs { letter-spacing: 0.002em; }
+  ::selection { background: var(--primary-soft); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+  ::-webkit-scrollbar-track { background: transparent; }
+}
+
+/* Фокус-кольцо стартера для собственных интерактивов панели. */
+@utility focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  &[data-focus-visible], &:focus-visible {
+    outline-color: var(--focus);
+  }
+}
+
+/* --- утилиты панели --- */
+
+/* Микроподпись: прописные всегда идут с разрядкой — иначе они читаются как
+   ряд одинаковых прямоугольников. 0.10em держится в рабочем диапазоне 5–12%;
+   прежние 0.14em были уже разрядкой ради разрядки и рвали короткие английские
+   слова («SPEND») на отдельные буквы. */
+.microlabel {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Вордмарк и крупные числа. Вариативная ось даёт ровно тот вес, который нужен,
+   без прыжка на следующее начертание. */
+.display {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.024em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.surface-blur {
+  background: color-mix(in oklch, var(--background) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+
+/* Выделенная строка дерева аналитики.
+ *
+ * Правило живёт ЗДЕСЬ, вне слоёв, а не утилитами в компоненте — и это не
+ * вкусовщина. Заливка выделения и `group-hover:bg-hover` стоят на одном
+ * элементе, а вариантные утилиты Tailwind идут в таблице стилей позже базовых:
+ * ховер перебивал выделение, и отмеченная строка под курсором выглядела
+ * неотмеченной. Беcслойное правило выигрывает у любой утилиты по каскаду и
+ * заодно может описать собственный :hover.
+ *
+ * Два состояния читаются РАЗНЫМИ средствами, а не разной прозрачностью одного:
+ *   выбрано всё      — заливка плюс сплошной рельс слева;
+ *   выбрана часть    — только рельс, вполсилы, без заливки.
+ * Пока оба были заливкой разной плотности, отличить их на глаз не выходило.
+ *
+ * Рельс — на липкой первой ячейке: строка шире экрана, и при горизонтальной
+ * прокрутке заливка правых колонок уезжает, а рельс виден всегда.
+ */
+tr[data-sel="on"] { background: var(--row-selected); }
+tr[data-sel="on"]:hover { background: var(--row-selected-hover); }
+tr[data-sel="on"] > td:first-child,
+tr[data-sel="on"] > th:first-child { background: var(--row-selected); }
+tr[data-sel="on"]:hover > td:first-child,
+tr[data-sel="on"]:hover > th:first-child { background: var(--row-selected-hover); }
+/* Рельс у левого края отмеченной строки. Теперь он несёт основную нагрузку:
+   раз акцент всегда фиолетовый, а холодный конец тепловой шкалы — тоже
+   фиолетовый, заливкой отметку от цены не отличить. Отметку узнают по краю,
+   цену — по заливке ячейки, и они больше не спорят за один и тот же сигнал. */
+tr[data-sel="on"] > td:first-child::before,
+tr[data-sel="on"] > th:first-child::before {
+  background: var(--row-selected-bar);
+}
+
+tr[data-sel="part"] > td:first-child::before,
+tr[data-sel="part"] > th:first-child::before {
+  background: color-mix(in oklab, var(--primary-ink) 45%, transparent);
+}
+
+/* Заливка акцентом. Класс, а не утилита: он переживает смену темы одной
+   строкой и выигрывает у утилит, которыми покрашены те же кнопки.
+
+   Плоский, без градиента. Градиент заводился ради лайма — светлый акцент
+   выглядел наклейкой, и объём ему добавляли переходом в мяту. Фиолетовый
+   тёмный, и градиент на нём даёт грязный переход, а не глубину. */
+/* ВЫКЛЮЧЕННОГО НЕ КРАСИМ — И ЭТО НЕ ПРИДИРКА К ВИДУ.
+   Класс выигрывает у утилит не специфичностью, а слоем: утилиты Tailwind живут
+   в `@layer utilities`, а он — вне слоёв, и потому бьёт их всегда. Вместе с
+   `bg-primary` он перебивал и покраску `isDisabled` из стартера react-aria
+   (`bg-neutral-100 text-neutral-300`): выключенная кнопка оставалась
+   ярко-акцентной.
+   Стоило это ровно того, чем выглядело: человек жал «Build prompt» на
+   неготовой связке и не получал НИЧЕГО — ни перехода, ни объяснения. Словами
+   владельца: «связка не строится, когда жму кнопку».
+   Поэтому условие стоит в САМОМ селекторе, а не отдельным правилом-заплаткой:
+   на выключенном элементе класс не срабатывает вовсе, и утилиты красят кнопку
+   так, как задумано. Не-форменных элементов (чипсы, плитки) это не касается —
+   `:disabled` у них не бывает. */
+.accent-fill:not(:disabled):not([data-disabled]):not([aria-disabled="true"]) {
+  background-image: none;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Тинт акцентом: включённый переключатель, активный чипс, панель выделения.
+   Одна роль — одна покраска. */
+.accent-tint {
+  background-image: none;
+  background-color: var(--primary-soft);
+}
+
+/* ── Система движения ────────────────────────────────────────────────────
+ *
+ * Правило одно: движение объясняет, что произошло, и заканчивается раньше,
+ * чем его успевают заметить. Дорогое ощущение в плотной таблице даёт не
+ * наличие эффектов, а их ОТСУТСТВИЕ там, где глаз считывает числа —
+ * анимированная цифра нечитаема ровно столько, сколько длится анимация.
+ *
+ * Отсюда два запрета, которые важнее всех разрешений ниже:
+ *   цифры в таблице     — не анимируются никогда;
+ *   тепловая подложка   — меняется мгновенно при смене среза.
+ * Иначе смена диапазона превращается в переливающийся экран, по которому
+ * невозможно сравнивать, пока он не успокоится.
+ *
+ * Длительности взяты не на глаз: 80-120 мс человек читает как «мгновенно, но
+ * не дёрнулось», 150-180 мс — как «двинулось», больше 200 мс на служебном
+ * элементе — как «тормозит». Поэтому отклик на курсор и нажатие живёт в
+ * первом диапазоне, а разворот и поповер — во втором: там движение несёт
+ * смысл (откуда взялось, куда уехало), и его надо успеть прочесть.
+ *
+ * Никакого `transition: all`: он анимирует и то, чего не просили, — включая
+ * ширину колонки под курсором ползунка. Всегда точные свойства.
+ * `prefers-reduced-motion` гасит всё глобально ниже — не ломать. */
+:root {
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --t-instant: 90ms;    /* нажатие: подтверждение, а не событие */
+  --t-hover: 120ms;     /* курсор пришёл или ушёл */
+  --t-move: 180ms;      /* что-то реально переехало: шеврон, поповер */
+}
+
+/* Нажатие на любую кнопку панели. Класс, а не утилита на каждой: эффект
+   обязан быть одинаковым везде, иначе «дорого» рассыпается на десяток
+   почти-одинаковых. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  transition:
+    background-color var(--t-hover) var(--ease-out),
+    border-color var(--t-hover) var(--ease-out),
+    color var(--t-hover) var(--ease-out),
+    transform var(--t-instant) var(--ease-out);
+}
+/* Масштаб — только у кнопок ОБЫЧНОЙ ширины.
+   На растянутой во всю строку те же 3% дают сдвиг в десятки пикселей по краям:
+   кнопка не «нажимается», а прыгает, и заметнее всего это на широких
+   раскрывашках вроде «How to connect». Ширину узнаём по утилите `w-full` —
+   другого признака «я растянут» в разметке нет. */
+button:not(:disabled):not(.w-full):active,
+[role="button"]:not([aria-disabled="true"]):not(.w-full):active {
+  /* 0.97, а не 0.95: на кнопке в 28 пикселей высотой пять процентов уже
+     читаются как прыжок, а не как нажатие. */
+  transform: scale(0.97);
+}
+
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* Моноширинное — теперь настоящее (Geist Mono), но табличные цифры и снятые
+   лигатуры оставляем явно: моноширинный шрифт может подставить свою «красивую»
+   стрелку вместо «->» и склеить «--», а в неймингах это структура строки.
+   Правило идёт ПОСЛЕ утилит Tailwind, поэтому перебивает голый font-family. */
+.font-mono,
+.microlabel {
+  font-variant-numeric: tabular-nums;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0, "calt" 0;
+}
+
+/* Нейминги. «--» — разделитель токенов в неймингах проекта, то есть структура
+   строки. Прочитать «hiu-DZ-...» вместо «hiu--DZ--...» значит не увидеть
+   границ полей, поэтому лигатуры выключены жёстко, каким бы шрифт ни был. */
+.naming {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0, "calt" 0;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* Дыхание акцента под блоком запуска. Медленно и без миганий: это фон, а не
+   уведомление. При prefers-reduced-motion всё останавливается общим правилом
+   ниже, поэтому отдельной ветки тут нет. */
+@keyframes breathe {
+  0%, 100% { opacity: 0.16; transform: scale(0.92); }
+  50%      { opacity: 0.42; transform: scale(1.06); }
+}
+.pulse-glow {
+  background: radial-gradient(closest-side, var(--primary), transparent 72%);
+  filter: blur(18px);
+  animation: breathe 6s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 var(--success-soft); }
+  70% { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.dark {
+  --destructive-foreground: var(--color-red-400);
+  --info: var(--color-blue-500);
+  --info-foreground: var(--color-blue-400);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-400);
+  --warning: var(--color-amber-500);
+  --warning-foreground: var(--color-amber-400);
+}
