@@ -2,25 +2,16 @@
 
 /** Модалка и нижняя шторка.
  *
- *  MotionDialog — переписан на coss (@base-ui/react) — это контролируемая
- *  модалка с теми же пропсами наружу (open/onOpenChange/title/className/maxWidth).
- *  Внутри — coss Dialog.Root + DialogPortal + DialogBackdrop + DialogPopup +
- *  DialogTitle, визуально повторяющий старый RAC-стартер: центрирование,
- *  зум-анимация, тёмный полупрозрачный фон, белый оверлей в тёмной теме.
+ *  Оба варианта — coss-обёртки вокруг @base-ui/react/dialog, того же
+ *  coss-стиля, что и Menu/Tooltip/Popover. Снаружи прежний контракт панели
+ *  (open/onOpenChange/title/className для модалки, open/onOpenChange/title для
+ *  шторки); внутри — BaseDialog.Root + Portal + Backdrop + Popup. Никакой RAC.
  *
- *  Sheet оставлен на RAC. Причина — MobileBar (`components/studio/MobileBar.tsx`)
- *  использует внутри `<Heading slot="title">` и `<Button slot="close">` для
- *  RAC-слотовой модели, и переписать потребителя задача не позволяла. В coss
- *  слоты не работают: вместо них явные `<DialogTitle>` и `<DialogClose>`, и
- *  без правки MobileBar миграция сломала бы доступ с экрана и закрытие по
- *  крестику. Возвращаемся к этому, когда MobileBar поедет в coss. */
+ *  Заголовок и крестик рисует сам потребитель через `<Dialog.Title>` и
+ *  `<Dialog.Close render={<button/>}>` — слоты RAC, на которых держался
+ *  прежний шим, в coss не работают. */
 import * as React from "react";
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
-import {
-  ModalOverlay as RacModalOverlay,
-  Modal as RacModal,
-  Dialog as RacDialog,
-} from "react-aria-components";
 import { cn } from "@/lib/utils";
 
 interface MotionDialogProps {
@@ -67,8 +58,9 @@ export function MotionDialog({
   );
 }
 
-/** Нижняя шторка для телефона — та же палитра, вход слайдом снизу.
- *  Осталась на RAC: см. JSDoc в шапке файла. */
+/** Нижняя шторка для телефона — та же палитра, вход слайдом снизу. Потребитель
+ *  (MobileBar) рисует заголовок через `<BaseDialog.Title>` и крестик через
+ *  `<BaseDialog.Close render={<button/>}>`. */
 export function Sheet({
   open,
   onOpenChange,
@@ -81,17 +73,23 @@ export function Sheet({
   children: React.ReactNode;
 }) {
   return (
-    <RacModalOverlay
-      isOpen={open}
-      onOpenChange={onOpenChange}
-      isDismissable
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-lg entering:animate-in entering:fade-in exiting:animate-out exiting:fade-out entering:duration-200 exiting:duration-200"
-    >
-      <RacModal className="fixed inset-x-0 bottom-0 z-50 max-h-[88dvh] rounded-t-2xl border border-black/10 bg-white font-sans text-neutral-700 shadow-2xl dark:border-white/10 dark:bg-neutral-800/70 dark:text-neutral-300 dark:backdrop-blur-2xl entering:animate-in entering:slide-in-from-bottom entering:duration-300 exiting:animate-out exiting:slide-out-to-bottom exiting:duration-200">
-        <RacDialog aria-label={title} className="flex max-h-[88dvh] flex-col p-4">
+    <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
+      <BaseDialog.Portal>
+        <BaseDialog.Backdrop className="fixed inset-0 z-50 bg-black/50 backdrop-blur-lg data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 transition-opacity duration-200" />
+        <BaseDialog.Popup
+          aria-label={title}
+          className={cn(
+            "fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col rounded-t-2xl border",
+            "border-black/10 bg-white p-4 font-sans text-neutral-700 shadow-2xl",
+            "dark:border-white/10 dark:bg-neutral-800/70 dark:text-neutral-300",
+            "dark:backdrop-blur-2xl outline-none",
+            "data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full",
+            "transition-transform duration-300",
+          )}
+        >
           {children}
-        </RacDialog>
-      </RacModal>
-    </RacModalOverlay>
+        </BaseDialog.Popup>
+      </BaseDialog.Portal>
+    </BaseDialog.Root>
   );
 }
