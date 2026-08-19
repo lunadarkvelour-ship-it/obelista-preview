@@ -1,17 +1,6 @@
-import { Loader2Icon } from "lucide-react";
-import type React from "react";
-import { cn } from "@/lib/utils";
-
-export function Spinner({
-  className,
-  ...props
-}: React.ComponentProps<typeof Loader2Icon>): React.ReactElement {
-  return (
-    <Loader2Icon
-      aria-label="Loading"
-      className={cn("animate-spin", className)}
-      role="status"
-      {...props}
-    />
-  );
-}
+/** Spinner в палитре coss.
+ *  Реэкспорт из @/components/coss: coss Button (@/components/ui/button)
+ *  импортирует Spinner отсюда, чтобы loading-индикатор был общий.
+ *  Сама реализация — Loader2Icon с animate-spin, ровно как в coss Spinner.
+ */
+export { Spinner } from "@/components/coss";
