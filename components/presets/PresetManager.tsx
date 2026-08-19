@@ -8,6 +8,7 @@
  */
 
 import * as React from "react";
+import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { Heading } from "react-aria-components";
 import { Check, Pencil, Save, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/rac/Modal";
@@ -159,8 +160,29 @@ export function PresetManager({
         )}
 
         <div className="mt-4 flex flex-col gap-2">
+          {/* LayoutGroup + AnimatePresence оборачивают список пресетов. Каждый
+              ряд — motion.div с `layout`, чтобы при сохранении/удалении/пере-
+              именовании соседи плавно перетекали на новое место, а не
+              перерисовывались. Вход/выход (новый пресет появляется, удалённый
+              — исчезает) играет через initial/animate/exit, без `height: 0`
+              коллапса, чтобы не прыгали границы поля ввода имени ниже. */}
           {names.length ? (
-            names.map((n) => <Row key={n} name={n} fromGroup={fromGroup} />)
+            <LayoutGroup>
+              <AnimatePresence initial={false}>
+                {names.map((n) => (
+                  <motion.div
+                    key={n}
+                    layout
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <Row name={n} fromGroup={fromGroup} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </LayoutGroup>
           ) : (
             <p className="text-sm text-muted-foreground">Empty for now — save the current setup below.</p>
           )}
