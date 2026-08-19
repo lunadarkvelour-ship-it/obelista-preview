@@ -88,16 +88,38 @@
    поэтому карточки/поповеры «всплывают» без теней и рамок-коробок. В тёмной —
    то же правило: канвас #0d0d0d, поверхность #171717, приподнятое #1f1f1f. */
 :root {
-  /* --font-dm (DM Sans, вариативный) и --font-geist-mono приезжают из
-     next/font. Семейство на интерфейс одно: разницу между заголовком и
-     подписью держат кегль и вес, а не смена шрифта. Двух гарнитур хватает —
-     текстовая и моноширинная (правило «максимум два шрифта»). */
-  --font-heading: var(--font-dm), system-ui, sans-serif;
-  --font-sans: var(--font-dm), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  /* Теперь это НАСТОЯЩИЙ моноширинный, а не текстовый шрифт с табличными
-     цифрами: id кабинетов, пиксели, JSON бандла и шаблоны нейминга стоят по
-     сетке целиком, а не только цифрами. */
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Один шрифт на всё: Cal Sans 2.0 variable (см. app/layout.tsx). Все три
+     роли — sans, heading, display — указывают на одну и ту же переменную.
+     Разнообразие даёт сам файл через оси (см. body/h1-h6/мелкий текст ниже),
+     а не смена семейства.
+     `ui-sans-serif, system-ui, sans-serif` — fallback, если Cal Sans по какой-то
+     причине не доехал. */
+  --font-heading: var(--font-cal-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-cal-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cal-sans), ui-sans-serif, system-ui, sans-serif;
+  /* Моноширинного у Cal Sans нет. Сетка для id кабинетов и JSON бьётся
+     tabular-nums (digits Cal Sans отдаёт) и letter-spacing (см. .naming) —
+     структура «act_xxx» и «hiu--DZ--...» читается, хоть и не стоит по
+     настоящей моно-решётке. Реальный моно вернётся, если появится Geist Mono
+     обратно. */
+  --font-mono: var(--font-cal-sans), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Пресеты осей Cal Sans. Описываются в одном месте и переиспользуются
+     ниже через `var(--cal-opsz-ui)` и т.п. — потом править одну строку, а
+     не искать по правилам.
+     Не Tailwind-токены: CSS-переменные без `@theme` НЕ генерируют утилит
+     `text-opsz-ui` и т.п., это просто числа, которые подставляются в
+     `font-variation-settings`. */
+  --cal-opsz-ui: 14;     /* body, контролы, таблица */
+  --cal-opsz-display: 45; /* h1, h2, h3, .display */
+  --cal-opsz-micro: 8;    /* .microlabel, 11px подписи */
+  --cal-geom-ui: 25;      /* UI-нейтральный */
+  --cal-geom-brand: 50;   /* Cal Sans brand */
+  --cal-geom-a11y: 0;     /* наиболее нейтральный, для технического */
+  --cal-wght-regular: 400;
+  --cal-wght-medium: 500;
+  --cal-wght-semibold: 600;
+  --cal-wght-bold: 700;
 
   --background: light-dark(#f7f7f8, #0d0d0e);
   --foreground: light-dark(#1c1c1f, #ededf0);
@@ -329,6 +351,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-heading: var(--font-heading);
+  --font-display: var(--font-display);
   --animate-skeleton: skeleton 2s -1s infinite linear;
   --color-info-foreground: var(--info-foreground);
   --color-info: var(--info);
@@ -401,22 +424,35 @@
     text-rendering: optimizeLegibility;
     /* Кернинг и лигатуры — явно, а не «как повезёт с движком». */
     font-feature-settings: "kern" 1, "liga" 1;
-    /* Главное ради чего брали вариативный DM Sans: ось оптического размера
-       сама меняет рисунок буквы под кегль. Крупная метрика получает узкие
-       формы и плотный ритм, 11-пиксельная подпись в таблице — раскрытые
-       и просторные. Без этой строки Safari берёт один рисунок на все кегли,
-       и мелкий текст залипает. */
+    /* Стартовая позиция осей Cal Sans на body. `font-optical-sizing: auto`
+       ниже ПОЗВОЛЯЕТ браузеру подкручивать opsz под реальный кегль — крупная
+       метрика получит форму ближе к display (opsz 45), мелкая — ближе к micro
+       (opsz 8). Здесь — дефолт для среднего текста (UI, 14px). GEOM 25 — UI-
+       нейтральный, не brand; wght 400 — regular. */
+    font-variation-settings:
+      "opsz" var(--cal-opsz-ui),
+      "GEOM" var(--cal-geom-ui),
+      "wght" var(--cal-wght-regular);
+    /* Без `auto` ось opsz не реагирует на размер — без неё правило выше
+       зафиксирует рисунок на 14, и мелкий/крупный текст получат одинаковые
+       формы. С `auto` браузер интерполирует opsz между значениями. */
     font-optical-sizing: auto;
     /* Абзац не оставляет одинокое слово на последней строке. */
     text-wrap: pretty;
   }
-  /* Заголовки — тот же DM Sans, отличается весом и трекингом. Геометрический
-     гротеск на крупном кегле рассыпается по буквам, поэтому трекинг
-     отрицательный и тем сильнее, чем крупнее строка. */
-  h1, h2, h3, h4 {
+  /* Заголовки — Cal Sans в display-зоне. Оси прописаны явно, чтобы не
+     зависеть от того, разрешил ли браузер `font-optical-sizing: auto` на
+     дочернем элементе (поведение разное). GEOM 50 — Cal Sans brand
+     (характерный рисунок), wght 600 — semibold, реальный вес, не Faux.
+     Трекинг отрицательный, как и раньше: геометрический гротеск на крупном
+     кегле рассыпается по буквам. */
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    font-weight: 600;
-    letter-spacing: -0.015em;
+    font-variation-settings:
+      "opsz" var(--cal-opsz-display),
+      "GEOM" var(--cal-geom-brand),
+      "wght" var(--cal-wght-semibold);
+    letter-spacing: -0.02em;
     /* Заголовок ломается по смыслу, а не по остатку строки. */
     text-wrap: balance;
   }
@@ -453,11 +489,19 @@
 /* Микроподпись: прописные всегда идут с разрядкой — иначе они читаются как
    ряд одинаковых прямоугольников. 0.10em держится в рабочем диапазоне 5–12%;
    прежние 0.14em были уже разрядкой ради разрядки и рвали короткие английские
-   слова («SPEND») на отдельные буквы. */
+   слова («SPEND») на отдельные буквы.
+
+   Cal Sans в micro-зоне: opsz 8, GEOM 25, wght 500. При 11px ось opsz
+   даёт самые широкие и просторные формы — ровно то, что нужно подписи,
+   которая должна читаться на фоне таблицы. tabular-nums выравнивает цифры
+   по сетке («SPEND $1,200» стоит ровно, без прыжков). */
 .microlabel {
-  font-family: var(--font-heading);
+  font-family: var(--font-sans);
   font-size: var(--text-2xs);
-  font-weight: 500;
+  font-variation-settings:
+    "opsz" var(--cal-opsz-micro),
+    "GEOM" var(--cal-geom-ui),
+    "wght" var(--cal-wght-medium);
   line-height: 1;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -465,11 +509,17 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Вордмарк и крупные числа. Вариативная ось даёт ровно тот вес, который нужен,
-   без прыжка на следующее начертание. */
+/* Вордмарк и крупные числа. Cal Sans в display-зоне с реальным bold (700,
+   не Faux). Трекинг -0.024em — плотнее, чем у обычных h1-h6: цифры и
+   логотип стоят как блок, а не рассыпаются. tabular-nums выравнивает
+   цифры по сетке, lining-nums переключает на капительные (а не старые
+   цифры с засечками). */
 .display {
-  font-family: var(--font-heading);
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-variation-settings:
+    "opsz" var(--cal-opsz-display),
+    "GEOM" var(--cal-geom-brand),
+    "wght" var(--cal-wght-bold);
   letter-spacing: -0.024em;
   font-variant-numeric: tabular-nums lining-nums;
 }
@@ -603,10 +653,11 @@ button:not(:disabled):not(.w-full):active,
 
 .tnum { font-variant-numeric: tabular-nums; }
 
-/* Моноширинное — теперь настоящее (Geist Mono), но табличные цифры и снятые
-   лигатуры оставляем явно: моноширинный шрифт может подставить свою «красивую»
-   стрелку вместо «->» и склеить «--», а в неймингах это структура строки.
-   Правило идёт ПОСЛЕ утилит Tailwind, поэтому перебивает голый font-family. */
+/* Моноширинного шрифта в проекте больше нет (Geist Mono снят), но табличные
+   цифры и снятые лигатуры оставляем явно: пропорциональный Cal Sans может
+   подставить свою «красивую» стрелку вместо «->» и склеить «--», а в
+   неймингах это структура строки. Правило идёт ПОСЛЕ утилит Tailwind,
+   поэтому перебивает голый font-family. */
 .font-mono,
 .microlabel {
   font-variant-numeric: tabular-nums;
@@ -616,12 +667,25 @@ button:not(:disabled):not(.w-full):active,
 
 /* Нейминги. «--» — разделитель токенов в неймингах проекта, то есть структура
    строки. Прочитать «hiu-DZ-...» вместо «hiu--DZ--...» значит не увидеть
-   границ полей, поэтому лигатуры выключены жёстко, каким бы шрифт ни был. */
+   границ полей, поэтому лигатуры выключены жёстко, каким бы шрифт ни был.
+
+   Cal Sans A11y (GEOM 0) — самая нейтральная зона шрифта: без характерных
+   «брендовых» форм, чистые глифы, лучшее чтение в id/JSON-строках. letter-
+   spacing 0.02em компенсирует отсутствие моно-решётки: даёт «дыхание»,
+   чтобы разделители «--» не слипались. Раньше эту работу делал Geist Mono
+   метриками, теперь — трекинг + явные лигатуры off. Сетка поедет: символы
+   разной ширины дают неровный правый край. Это компромисс за отказ от
+   моно-семейства. */
 .naming {
   font-family: var(--font-mono);
+  font-variation-settings:
+    "opsz" var(--cal-opsz-ui),
+    "GEOM" var(--cal-geom-a11y),
+    "wght" var(--cal-wght-regular);
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0, "clig" 0, "calt" 0;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 @keyframes shimmer { 100% { transform: translateX(100%); } }
