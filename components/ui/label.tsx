@@ -1,26 +1,21 @@
 "use client";
 
-import { mergeProps } from "@base-ui/react/merge-props";
-import { useRender } from "@base-ui/react/use-render";
-import type React from "react";
+/** Подпись поля — те же классы, что у Label в tailwind-стартере (Field.tsx). */
+import * as React from "react";
+import { Label as RacLabel } from "react-aria-components";
 import { cn } from "@/lib/utils";
 
-export function Label({
-  className,
-  render,
-  ...props
-}: useRender.ComponentProps<"label">): React.ReactElement {
-  const defaultProps = {
-    className: cn(
-      "inline-flex items-center gap-2 font-medium text-base/4.5 text-foreground sm:text-sm/4",
-      className,
-    ),
-    "data-slot": "label",
-  };
-
-  return useRender({
-    defaultTagName: "label",
-    props: mergeProps<"label">(defaultProps, props),
-    render,
-  });
-}
+export const Label = React.forwardRef<
+  HTMLLabelElement,
+  React.ComponentPropsWithoutRef<typeof RacLabel>
+>(({ className, ...props }, ref) => (
+  <RacLabel
+    ref={ref}
+    className={cn(
+      "w-fit cursor-default select-none font-sans text-sm font-medium text-neutral-600 dark:text-neutral-300",
+      className
+    )}
+    {...props}
+  />
+));
+Label.displayName = "Label";

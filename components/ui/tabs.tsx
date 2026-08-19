@@ -1,116 +1,53 @@
 "use client";
 
-import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+/** Табы = Tabs из tailwind-стартера: пилюли, активная помечена
+ *  SelectionIndicator'ом (mix-blend-difference), который едет между вкладками. */
 import * as React from "react";
-import {
-  type SegmentedControlSize,
-  segmentedControlItemSizeClassNames,
-} from "@/components/lib/segmented-control";
+import { Tabs as RacTabs, TabList as RacTabList, Tab as RacTab, TabPanel as RacTabPanel } from "@/components/rac/Tabs";
 import { cn } from "@/lib/utils";
 
-type TabsVariant = "default" | "underline";
-type TabsSize = SegmentedControlSize;
-
-const TabsListContext: React.Context<TabsSize> =
-  React.createContext<TabsSize>("default");
-
 export function Tabs({
-  className,
-  ...props
-}: TabsPrimitive.Root.Props): React.ReactElement {
-  return (
-    <TabsPrimitive.Root
-      className={cn(
-        "flex flex-col gap-2 data-[orientation=vertical]:flex-row",
-        className,
-      )}
-      data-slot="tabs"
-      {...props}
-    />
-  );
-}
-
-export function TabsList({
-  variant = "default",
-  size = "default",
+  value,
+  onChange,
   className,
   children,
-  ...props
-}: TabsPrimitive.List.Props & {
-  size?: TabsSize;
-  variant?: TabsVariant;
-}): React.ReactElement {
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <TabsPrimitive.List
-      className={cn(
-        "relative z-0 flex w-fit items-center justify-center gap-x-0.5 text-muted-foreground",
-        "data-[orientation=vertical]:flex-col",
-        variant === "default"
-          ? "rounded-lg bg-muted p-0.5 text-muted-foreground/72"
-          : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent",
-        className,
-      )}
-      data-size={size}
-      data-slot="tabs-list"
-      {...props}
-    >
-      <TabsListContext.Provider value={size}>
-        {children}
-      </TabsListContext.Provider>
-      <TabsPrimitive.Indicator
-        className={cn(
-          "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out",
-          variant === "underline"
-            ? "z-10 bg-primary data-[orientation=horizontal]:h-0.5 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
-            : "-z-1 rounded-md bg-background shadow-sm/5 dark:bg-input",
-        )}
-        data-slot="tab-indicator"
-      />
-    </TabsPrimitive.List>
+    <RacTabs selectedKey={value} onSelectionChange={(k) => onChange(String(k))} className={className}>
+      {children}
+    </RacTabs>
   );
 }
 
-export function TabsTab({
-  className,
-  size,
-  ...props
-}: TabsPrimitive.Tab.Props & {
-  size?: TabsSize;
-}): React.ReactElement {
-  const contextSize: TabsSize = React.useContext(TabsListContext);
-  const resolvedSize: TabsSize = size ?? contextSize;
-
+export function TabList({
+  items,
+  ariaLabel,
+}: {
+  items: { id: string; label: React.ReactNode }[];
+  idBase?: string;
+  ariaLabel?: string;
+  current?: string;
+}) {
   return (
-    <TabsPrimitive.Tab
-      className={cn(
-        "relative flex shrink-0 grow cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent font-medium text-base outline-none transition-[color,background-color,box-shadow] hover:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start data-active:text-foreground data-disabled:opacity-64 sm:text-sm [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:-mx-0.5 [&_svg]:shrink-0",
-        segmentedControlItemSizeClassNames[resolvedSize],
-        className,
-      )}
-      data-size={resolvedSize}
-      data-slot="tabs-tab"
-      {...props}
-    />
+    <RacTabList aria-label={ariaLabel}>
+      {items.map((it) => (
+        <RacTab key={it.id} id={it.id}>
+          {it.label}
+        </RacTab>
+      ))}
+    </RacTabList>
   );
 }
 
-export function TabsPanel({
-  className,
-  ...props
-}: TabsPrimitive.Panel.Props): React.ReactElement {
+export function TabPanel({ id, className, children }: { id: string; className?: string; children: React.ReactNode }) {
   return (
-    <TabsPrimitive.Panel
-      className={cn("flex-1 outline-none", className)}
-      data-slot="tabs-content"
-      {...props}
-    />
+    <RacTabPanel id={id} className={cn("p-0", className)}>
+      {children}
+    </RacTabPanel>
   );
 }
-
-export {
-  TabsPrimitive,
-  TabsTab as TabsTrigger,
-  TabsPanel as TabsContent,
-  type TabsSize,
-  type TabsVariant,
-};

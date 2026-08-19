@@ -1,30 +1,30 @@
 "use client";
 
-import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
-import type React from "react";
-import { cn } from "@/lib/utils";
+/** Свитч = Switch из tailwind-стартера; контракт панели прежний. */
+import * as React from "react";
+import { Switch as RacSwitch } from "@/components/rac/Switch";
 
-export function Switch({
-  className,
-  ...props
-}: SwitchPrimitive.Root.Props): React.ReactElement {
-  return (
-    <SwitchPrimitive.Root
-      className={cn(
-        "inline-flex h-[calc(var(--thumb-size)+2px)] w-[calc(var(--thumb-size)*2-2px)] shrink-0 items-center rounded-full p-px outline-none transition-[background-color,box-shadow] duration-200 [--thumb-size:--spacing(5)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-disabled:cursor-not-allowed data-checked:bg-primary data-unchecked:bg-input data-disabled:opacity-64 sm:[--thumb-size:--spacing(4)]",
-        className,
-      )}
-      data-slot="switch"
-      {...props}
-    >
-      <SwitchPrimitive.Thumb
-        className={cn(
-          "pointer-events-none block aspect-square h-full origin-left in-[[role=switch]:active,[data-slot=label]:active,[data-slot=field-label]:active]:not-data-disabled:scale-x-110 in-[[role=switch]:active,[data-slot=label]:active,[data-slot=field-label]:active]:rounded-[var(--thumb-size)/calc(var(--thumb-size)*1.1)] rounded-(--thumb-size) bg-background shadow-sm/5 will-change-transform [transition:translate_.15s,border-radius_.15s,scale_.1s_.1s,transform-origin_.15s] data-checked:origin-[var(--thumb-size)_50%] data-checked:translate-x-[calc(var(--thumb-size)-4px)]",
-        )}
-        data-slot="switch-thumb"
-      />
-    </SwitchPrimitive.Root>
-  );
+export interface SwitchProps {
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  disabled?: boolean;
+  className?: string;
+  id?: string;
+  "aria-label"?: string;
+  children?: React.ReactNode;
 }
 
-export { SwitchPrimitive };
+export function Switch({ checked, onCheckedChange, disabled, className, id, children, ...rest }: SwitchProps) {
+  return (
+    <RacSwitch
+      id={id}
+      isSelected={!!checked}
+      isDisabled={disabled}
+      onChange={(v: boolean) => onCheckedChange?.(v)}
+      className={className}
+      {...rest}
+    >
+      {children}
+    </RacSwitch>
+  );
+}
