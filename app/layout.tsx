@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { AppToastRegion } from "@/components/ui/toast";
 import { AppShell } from "@/components/shell/AppShell";
+import { Providers } from "./providers";
 import "./globals.css";
 
 /* Одно семейство на весь интерфейс: Cal Sans 2.0 variable. DM Sans и
@@ -83,9 +84,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         {/* Оболочка живёт в layout: при переходе между листами она не
-            размонтируется, поэтому поллинг снапшота не перезапускается. */}
-        <AppShell>{children}</AppShell>
-        <AppToastRegion />
+            размонтируется, поэтому поллинг снапшота не перезапускается.
+            Providers ВНУТРИ AppShell, а не снаружи: QueryClient живёт
+            только в браузере ("use client" уже стоит в providers.tsx),
+            и оборачивать им bare-листы (логин, политика) бессмысленно —
+            они своего fetcher'а не зовут. */}
+        <Providers>
+          <AppShell>{children}</AppShell>
+          <AppToastRegion />
+        </Providers>
       </body>
     </html>
   );
