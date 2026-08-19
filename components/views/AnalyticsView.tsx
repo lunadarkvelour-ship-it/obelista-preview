@@ -11,6 +11,7 @@
  */
 
 import * as React from "react";
+import { motion, useScroll, useTransform } from "motion/react";
 import { Button } from "@/components/coss";
 import { EyeOff, RefreshCw, ChevronsDownUp, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -941,8 +942,29 @@ export function AnalyticsView() {
     };
   }, [board, shown, roots, filtered]);
 
+  /* Скролл-прогресс по `main`. Сам `main` не скроллится — его оборачивает
+     `#canvas` в AppShell с `overflow-y-auto`. useScroll с `target` ловит
+     движение `main` через scroll-события viewport'а и не зависит от того, на
+     каком контейнере висит overflow. На 0 — вершина main у верха viewport'а,
+     на 1 — низ main у низа. */
+  const mainRef = React.useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({ target: mainRef });
+  /* Тонкая полоска 1.5px у верха канвы: растёт слева направо по мере
+     прокрутки, источник прогресса — `scaleX` от 0 до 1. Никаких чисел и
+     подписей: это инструмент, не индикатор загрузки. */
+  const barScaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
   return (
-    <main className="flex h-full min-h-0 flex-col gap-2.5 p-4">
+    <main ref={mainRef} className="flex h-full min-h-0 flex-col gap-2.5 p-4">
+      {/* Полоса прогресса скролла: 1.5px у верха, sticky, чтобы прилипала к
+          канве и не уезжала вместе с контентом. `transform-origin: left` —
+          иначе `scaleX` растёт из центра, и рост читался бы как расходящаяся
+          заливка, а не как заполнение слева. */}
+      <motion.div
+        aria-hidden
+        style={{ scaleX: barScaleX, transformOrigin: "0% 50%" }}
+        className="sticky top-0 z-20 -mx-4 h-[1.5px] origin-left bg-primary/80"
+      />
       {/* ── A. Строка среза ────────────────────────────────────────────────
           Одна линия: где мы находимся и за какой период. Раньше здесь же жила
           диагностика сбора — одиннадцать пар «подпись — значение», которые
