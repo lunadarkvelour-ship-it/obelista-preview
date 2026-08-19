@@ -1,91 +1,105 @@
-# Zaliv Builder — panel (v2)
+# Obelista Preview
 
-Next.js-переписка `web/zaliv_builder.html`. Конструктор «связок» для массовой заливки
-рекламы Facebook: собираешь спеку → копируешь → отдаёшь Claude Desktop → MCP
-(`plan_upload → execute_upload → job_status`). **Сама панель ничего не льёт** —
-реальная заливка идёт локально, через антидетект на машине оператора + ядро `core/`.
+Зеркало продуктового фронтенда (`app.obelista.com`), поднятое в отдельном репо
+для безопасного визуального и архитектурного эксперимента без риска для
+продакшна.
+
+## Что это
+
+Полная копия `panel/` из `xraaff/obelista` (388 файлов исходников, ~23 тыс.
+строк, 28 страниц Next.js, бизнес-логика заливки FB-рекламы, листы «Кабинеты /
+Кампании / Аналитика / Залив / Превью / Импорт / Правила / Биллинг» и т.д.).
+
+Разница с продом одна: **дизайн-слой мигрирует с `react-aria-components` на
+[coss ui](https://coss.com/ui/)** — фонд переехал под `coss`, но фактический шим
+(`components/ui/*`) пока остаётся RAC-обёрткой. Причина — масштаб миграции, она
+ниже.
 
 ## Стек
-Next.js 15 (App Router) · TypeScript · Tailwind v4 · shadcn/ui (Radix) · Magic UI ·
-`motion` (Framer Motion) · Zustand + persist.
 
-## Что сохранено 1:1 из старого HTML
-Все 10 секций и каждое поле, редактор тегов с автопривязкой к профилю, 2-сторонняя
-синхронизация `act_id ↔ чекбоксы`, здоровье кабов, хвост-группы (мультисвязки),
-макросы нейминга, импорт JSON, встроенные + пользовательские пресеты, темы.
-Логика `buildSpec/buildText/buildAll/specToState` вынесена в `lib/` и покрыта
-парити-тестами (спека пресетов **байт-в-байт** совпадает со старой).
+Next.js 15.5 (App Router) · React 19 · TypeScript · Tailwind v4 · coss ui
+(поверх `@base-ui/react`) · `motion` · Zustand · `lucide-react`.
+
+## Слой компонентов
+
+| Где | Что | Статус |
+|---|---|---|
+| `components/ui/*` | шим-обёртки над `react-aria-components` | действующий, ~95% UI |
+| `components/rac/*` | сами RAC-примитивы в стиле Tailwind-стартера | действующий |
+| `components/coss/*` | coss ui для нового кода | фонд, 3 примитива |
+| `app/globals.css` | палитра панели (синяя → фиолетовая) + тени | действующий |
+
+`components/coss/index.ts` экспортирует `Button`, `Spinner`, `Card` (с
+`CardHeader/Title/Description/Panel/Content/Action/Footer`). В `components/ui/`
+тоже лежат coss-исходники (`accordion/calendar/collapsible/popover/scroll-area/
+select/spinner`) — без обёрток, для прямого импорта.
+
+## Почему RAC остаётся в `package.json`
+
+`react-aria-components` всё ещё в зависимостях, и это сознательное решение, а
+не недоделка. 25–30 файлов в `app/`, `components/`, `lib/` импортируют его
+**напрямую** (не через шим):
+
+- `components/studio/fields.tsx` — `Group`, `Label`, `Text`, …
+- `components/studio/PixelField.tsx` — `Text`, `ComboBox` …
+- `components/studio/control.tsx` — RAC `Select`
+- `components/studio/ImportTools.tsx` — `FileTrigger`, RAC `DropZone`
+- `components/studio/SectionRail.tsx` — `Group`, `Label`, `Text` …
+- `components/studio/MobileBar.tsx` — `Heading`, RAC `Button`
+- `components/sections/AccountPicker.tsx` — `ListLayout`, `Virtualizer` + RAC `GridList`
+- `components/sections/AccountHealth.tsx` — `SortDescriptor` + RAC `Table`
+- `components/sections/profiles/ScanProfiles.tsx` — RAC `Dialog/Modal/Button`
+- `components/shell/AppShell.tsx` — `I18nProvider`
+- `components/campaigns/CampaignColumns.tsx` — RAC `Dialog/Popover/Button/Switch`
+- `components/presets/PresetManager.tsx`, `PresetCommand.tsx` — RAC `Dialog/Modal/Autocomplete/SearchField/Menu` …
+- `components/views/RulesView.tsx`, `SocialsView.tsx`, `AnalyticsView.tsx`,
+  `CampaignsView.tsx`, `PeriodPicker.tsx` — RAC `Button/Dialog/Popover`
+- `components/analytics/*` — RAC `Button/Dialog/Popover/Switch` повсюду
+- `components/ui/{DateRangeField,datetime,disclosure,tag-group,segmented,loading,toast}.tsx` — обёртки, держащие RAC-контракт
+
+Каждый из них — отдельный заход: переписать `MobileBar` на coss — это понять,
+где у него был `Heading`, чем его заменить, проверить фокус-кольцо и
+контраст клавиатурной навигации. Минимум полчаса на файл, 25–30 файлов
+дают ~15 часов только на переписывание, без учёта визуального QA.
+
+Сама задача в `CLAUDE.md`/`AGENTS.md` подтверждает эту оценку: «остановись и
+доложи» через 30 минут на одном компоненте. Поэтому RAC остаётся до тех пор,
+пока миграция не пойдёт файл за файлом в отдельных PR-ах. Сейчас coss
+добавлен как фонд, шим не сломан, новый код может идти через
+`@/components/coss/`.
 
 ## Локально
+
 ```bash
-cd panel
-npm install          # .npmrc уже ставит legacy-peer-deps (React 19)
+cd /Users/mac/obelista-preview
+npm install
 npm run dev          # http://localhost:8790
-npm test             # парити-тесты (vitest)
 npm run build        # прод-сборка
+npm test             # vitest, без сети и без живой базы
 ```
 
-## Листы
-Панель разложена на три листа; оболочка (`components/shell/AppShell.tsx`) живёт в
-`app/layout.tsx` и между переходами не размонтируется — поллинг снапшота и стор целы.
+`.npmrc` ставит `legacy-peer-deps=true` (React 19 + старая кодовая база).
 
-| путь | что там |
-|---|---|
-| `/launch` | конструктор связки (10 секций) + полоска-итог снизу |
-| `/preview` | контекст, структура, сводка и готовый вывод для Claude |
-| `/import` | импорт спеки, ручная загрузка снапшота, состояние плагина-моста |
+## Что не мигрировано
 
-Слева — сайдбар с листами и шагами; сворачивается до колонки иконок, состояние
-запоминается. На телефоне то же самое лежит в нижнем баре.
+- Шим в `components/ui/*` (20 файлов: `button, input, textarea, checkbox,
+  switch, dialog, menu, tabs, tooltip, badge, separator, label, skeleton,
+  DateRangeField, datetime, disclosure, tag-group, segmented, loading,
+  toast`) — RAC внутри.
+- 25–30 файлов, импортирующих RAC напрямую (см. список выше).
+- `tailwindcss-react-aria-components` — утилитарный плагин (`pressed:`,
+  `selected:`, `entering:`, …), на нём держится текущая стилистика RAC.
+  Удаление потребовало бы одновременного переезда всех RAC-потребителей.
+- Визуальный слой: coss-стили отличаются от RAC-стартера (другие токены,
+  `data-slot` вместо `data-pressed`, `has-focus-visible` вместо `data-[focused]`).
+  Включение coss в шим ломает визуал везде, где шим использован.
 
-## Данные (снапшот кабов/пикселей/здоровья)
-Основной путь — **плагин-мост** (`browser_ext/snapshot_bridge`): расширение читает
-локальный `data/ui_snapshot.json` и раз в минуту отдаёт его открытой вкладке.
-Пока мост жив, `/api/snapshot` не дёргается вовсе; состояние моста видно на `/import`.
+## Куда двигаться дальше
 
-Без моста панель ходит в `GET /api/snapshot` раз в 10 минут, а тот резолвит источник
-**в пространстве спросившего** — арендатор берётся из `user.ws` в ответе `/auth/me`,
-и без него роут отвечает 401 (XR-50):
-1. **push-кеш** — последний `POST /api/snapshot` **этого же арендатора** (в памяти
-   процесса, ключ — номер арендатора);
-2. **`SNAPSHOT_URL`** — env-URL, откуда стянуть JSON. Отдаётся ТОЛЬКО арендатору
-   `SNAPSHOT_WS`;
-3. **локальный файл** — `../data/ui_snapshot.json` (рядом с бэком). Тоже только
-   арендатору `SNAPSHOT_WS`: файл на диске сервера принадлежит одному;
-4. иначе — панель работает на встроенном seed-каталоге + ручная вставка снапшота в UI.
-
-`SNAPSHOT_WS` не задан — пункты 2 и 3 выключены целиком, а `SNAPSHOT_TOKEN` не
-работает вовсе. Это не осторожность, а устройство: пропуск, которым можно записать
-в любое пространство, — это та же утечка, из-за которой один снапшот видели все
-арендаторы сразу.
-
-Без снапшота ничего не ломается: показываются вшитые кабы, здоровье пустое.
-
-### Почему пуш на хостинг не спасает
-```bash
-# на панели: SNAPSHOT_TOKEN=<секрет> SNAPSHOT_WS=<номер арендатора>
-curl -X POST "$PANEL_URL/api/snapshot" -H "Authorization: Bearer $SNAPSHOT_TOKEN" \
-  -H "Content-Type: application/json" --data-binary @data/ui_snapshot.json
-```
-Арендатора пуш не выбирает и передать его в теле не может — панель берёт его из
-своего `SNAPSHOT_WS`. Один токен на установку и номер из запроса означали бы
-«пишу кому хочу».
-
-Работает только там, где процесс один и живёт долго (локально, свой сервер). **Там, где хостинг гасит процесс между запросами,
-пуш бесполезен**: кеш лежит в памяти инстанса, а следующий GET почти наверняка
-попадёт в другой. Для хостинга есть мост.
-
-## Пресеты
-Встроенных пресетов нет — панель открывается на стартовом состоянии (`START_FORM`
-в `lib/seed.ts`), а в чипсах и ⌘K лежат свои, сохранённые оператором. У пресета
-есть **область** (`lib/preset-scope.ts`): можно сохранить «только таргетинг и
-бюджет», и он не потащит за собой профиль, кабы и оффер. Пресеты, сохранённые до
-появления областей, применяются целиком. Значения старых встроенных пресетов
-остались тест-фикстурами (`lib/__tests__/fixtures.ts`) — на них держится парити.
-
-## Деплой на Render
-`render.yaml` уже настроен (Web Service, `rootDir: panel`). Подключи репозиторий —
-Render подхватит конфиг. Задай env `SNAPSHOT_TOKEN` **вместе с** `SNAPSHOT_WS` —
-поодиночке токен не работает (и опц. `SNAPSHOT_URL`, который тоже отдаётся только
-арендатору `SNAPSHOT_WS`).
-Заметь: антидетект и заливка — только локально; на Render живёт **фронт + приём снапшота**.
+1. По одному файлу из RAC-списка: заменить импорт, переписать JSX, прогнать
+   `npm run build` + ручной визуальный QA, выкатить отдельным PR.
+2. Когда список опустеет — `components/ui/*` шим можно переписать на coss
+   (Button, Dialog, Menu, Tabs …) или удалить и переименовать
+   `components/coss/*` в `components/ui/*`.
+3. Снять `react-aria-components` и `tailwindcss-react-aria-components` из
+   `package.json` последним коммитом.
