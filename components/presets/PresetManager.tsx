@@ -13,9 +13,9 @@ import { Check, Pencil, Save, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/rac/Modal";
 import { Dialog } from "@/components/rac/Dialog";
 import { toast } from "@/components/ui/toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/coss";
+import { Input } from "@/components/coss";
+import { Checkbox } from "@/components/coss";
 import { useStore } from "@/lib/store";
 import { ALL_SCOPE_IDS, SCOPE_GROUPS, scopeLabel } from "@/lib/preset-scope";
 
@@ -193,9 +193,10 @@ export function PresetManager({
               «только таргетинг» не должен тащить профиль и выбранные кабы. */}
           <div className="mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
             {SCOPE_GROUPS.map((g) => (
-              <Checkbox key={g.id} checked={scope.includes(g.id)} onCheckedChange={() => toggle(g.id)}>
-                <span className="text-xs">{g.label}</span>
-              </Checkbox>
+              <label key={g.id} className="inline-flex items-center gap-2 text-xs">
+                <Checkbox checked={scope.includes(g.id)} onCheckedChange={() => toggle(g.id)} />
+                {g.label}
+              </label>
             ))}
           </div>
         </div>

@@ -12,7 +12,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Check, Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useStore, buildCtx } from "@/lib/store";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Tabs, TabList, TabPanel } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/toast";
 import { PAGE_PAD, PAGE_WIDTH } from "@/components/shell/page";

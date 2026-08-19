@@ -34,13 +34,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { api } from "@/lib/analytics";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/coss";
+import { Checkbox } from "@/components/coss";
 import { Tip } from "@/components/ui/tooltip";
 import { ColResizer } from "@/components/sections/ColResizer";
 import { parseAccQuery, unmatched } from "@/lib/acc-query";
 import { personalAccounts } from "@/lib/lichka";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/coss";
 import { SelectField } from "@/components/studio/control";
 import { AttentionChips, StatusDot, statusMeta } from "@/components/sections/health-bits";
 import { PAGE_PAD, PAGE_WIDTH } from "@/components/shell/page";
@@ -868,8 +868,13 @@ export function AccountsView() {
                 <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
                   {rows.length} accounts belong to profiles that are not connected right now.
                 </p>
-                <Button variant="outline" size="sm" className="mt-3" asChild>
-                  <Link href="/socials">Connect a profile</Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                  render={<Link href="/socials" />}
+                >
+                  Connect a profile
                 </Button>
               </div>
             ) : (

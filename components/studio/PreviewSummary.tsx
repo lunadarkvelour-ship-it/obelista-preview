@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { TriangleAlert } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useBuilder } from "./useBuilder";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/coss";
 import { listItem } from "@/lib/motion";
 
 function Line({ k, children }: { k: string; children: React.ReactNode }) {
@@ -29,7 +29,7 @@ export function PreviewSummary() {
       <Line k="Accounts:">{meta.nCabs}{built.groups.length ? <> · <b>{built.groups.length} bundle{built.groups.length === 1 ? "" : "s"}</b></> : null}</Line>
       <Line k="Structure:">{s.nCamp} × {s.nAdset} × {s.nAd} = <b>{meta.perCab}</b> objects/account</Line>
       <Line k="Objective:">
-        {s.objective} → {meta.goalBad ? <Badge variant="danger">invalid combination</Badge> : <b>{meta.goal}</b>}
+        {s.objective} → {meta.goalBad ? <Badge variant="destructive">invalid combination</Badge> : <b>{meta.goal}</b>}
       </Line>
       <Line k="Budget:">${s.daily}/day · {s.budgetLevel === "adset" ? "ABO" : "CBO"}</Line>
       <Line k="Targeting:">{s.geo.join("/") || "?"} · {s.ageMin}-{s.ageMax} · {s.device === "all" ? "all devices" : s.device}{s.advAud ? " · Adv+aud" : ""}</Line>

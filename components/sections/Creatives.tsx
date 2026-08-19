@@ -3,9 +3,9 @@
 import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/coss";
+import { Textarea } from "@/components/coss";
+import { Checkbox } from "@/components/coss";
 import { CTAS, CREO_SOURCES } from "@/lib/constants";
 
 export function Creatives() {
@@ -45,12 +45,14 @@ export function Creatives() {
       </Hint>
       {isFile && (
         <Row label="Static → video">
-          <Checkbox
-            checked={form.staticAsVideo}
-            onCheckedChange={(v) => set("staticAsVideo", !!v)}
-          >
+          <label className="inline-flex items-start gap-2 font-sans text-sm">
+            <Checkbox
+              checked={form.staticAsVideo}
+              onCheckedChange={(v) => set("staticAsVideo", !!v)}
+              className="mt-0.5"
+            />
             <Hint>wrap images into 9:16 video (blurred background). Slow — only if video is really required; not needed for Reels</Hint>
-          </Checkbox>
+          </label>
         </Row>
       )}
       <Row label="CTA">

@@ -5,7 +5,7 @@
 
 import { useStore } from "@/lib/store";
 import { ImportTools } from "@/components/studio/ImportTools";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/coss";
 import { PAGE_PAD } from "@/components/shell/page";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,7 @@ function BridgeCard() {
           bridge.ok ? (
             <Badge variant="success">reading</Badge>
           ) : (
-            <Badge variant="danger">error</Badge>
+            <Badge variant="destructive">error</Badge>
           )
         ) : (
           <Badge variant="outline">not found</Badge>

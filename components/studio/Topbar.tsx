@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Moon, Sun } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/coss";
 import { Tip } from "@/components/ui/tooltip";
 import { Logo } from "@/components/brand/Logo";
 

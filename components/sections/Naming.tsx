@@ -6,7 +6,7 @@ import { useStore } from "@/lib/store";
 import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/coss";
 import { MACROS } from "@/lib/constants";
 import { mergeProfiles } from "@/lib/seed";
 import { TAG_BY_SOC, tagForProfile } from "@/lib/groups";

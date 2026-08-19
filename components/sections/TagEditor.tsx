@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { useStore } from "@/lib/store";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/coss";
+import { Button } from "@/components/coss";
 import { Hint } from "@/components/studio/fields";
 import { X, Plus } from "lucide-react";
 

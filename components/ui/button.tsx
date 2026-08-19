@@ -1,82 +1,100 @@
 "use client";
 
-/** Кнопка = Button из tailwind-стартера react-aria (components/rac/Button).
- *  Наружу — прежний контракт панели (variant/size/onClick), внутрь — их
- *  варианты primary/secondary/destructive/quiet и их же стили нажатия. */
+/** Кнопка на coss Button с одним обратно-совместимым вариантом.
+ *
+ *  Внутренность — coss Button из @/components/coss. Снаружи — старый контракт
+ *  панели: variant: "default"|"success"|"ghost"|"outline"|"destructive"|
+ *  "link"|"secondary" и size: "default"|"sm"|"xs"|"lg"|"icon"|"icon-sm".
+ *
+ *  Большинство вариантов мапятся 1:1 в coss-варианты (default/ghost/outline/
+ *  destructive/link/secondary). Один НЕ маппится 1:1:
+ *
+ *    success   → default + bg-emerald-*  (coss-вариантов без зелёного нет)
+ *
+ *  Исторические варианты quiet/subtle и asChild-обёртка удалены:
+ *    - quiet использовали rac/Disclosure.tsx и rac/Calendar.tsx, но эти
+ *      файлы импортируют СВОЮ Button из @/components/rac/Button (allowlist),
+ *      а не эту. Маппинг был мёртвым.
+ *    - subtle не использовался никем.
+ *    - asChild был ровно в одном потребителе; его переписали на coss `render`.
+ *
+ *  Заменено:
+ *    - @/components/rac/Button  →  @/components/coss (Button)
+ *    - ручной forwardRef        →  useRender из @base-ui/react
+ */
 import * as React from "react";
-import { Button as RacButton } from "@/components/rac/Button";
+import { Button as CossButton } from "@/components/coss";
 import { cn } from "@/lib/utils";
 
-type OurVariant = "default" | "success" | "ghost" | "subtle" | "outline" | "destructive" | "link";
-type OurSize = "default" | "sm" | "xs" | "lg" | "icon" | "icon-sm";
+type OurVariant =
+  | "default"
+  | "success"
+  | "ghost"
+  | "outline"
+  | "destructive"
+  | "link"
+  | "secondary";
+type CossVariant =
+  | "default"
+  | "destructive"
+  | "destructive-outline"
+  | "ghost"
+  | "link"
+  | "outline"
+  | "secondary";
 
-const VARIANT: Record<OurVariant, "primary" | "secondary" | "destructive" | "quiet"> = {
-  default: "primary",
-  success: "primary",
-  ghost: "secondary",
-  subtle: "secondary",
-  outline: "secondary",
+const VARIANT: Record<OurVariant, CossVariant> = {
+  default: "default",
+  success: "default",
+  ghost: "ghost",
+  outline: "outline",
   destructive: "destructive",
-  link: "quiet",
+  link: "link",
+  secondary: "secondary",
 };
 
-// Стартер даёт одну высоту (h-9); плотные места панели ужимаем классами.
-const SIZE: Record<OurSize, string> = {
-  default: "",
-  sm: "h-8 px-3 text-xs [&:has(>svg:only-child)]:h-8 [&:has(>svg:only-child)]:w-8",
-  xs: "h-7 px-2.5 text-xs [&:has(>svg:only-child)]:h-7 [&:has(>svg:only-child)]:w-7",
-  lg: "h-10 px-5",
-  icon: "",
-  "icon-sm": "h-8 w-8 [&:has(>svg:only-child)]:h-8 [&:has(>svg:only-child)]:w-8",
-};
-
-const EXTRA: Partial<Record<OurVariant, string>> = {
-  success: "bg-green-600 hover:bg-green-700 pressed:bg-green-800",
-};
+// Зелёный фон для "success". coss-варианты не дают зелёной палитры из коробки,
+// поэтому подмешиваем emerald-классы поверх default-варианта.
+const SUCCESS_CLASSES =
+  "bg-emerald-600 text-white hover:bg-emerald-700 data-pressed:bg-emerald-800 dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:data-pressed:bg-emerald-700";
 
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick" | "color"> {
   variant?: OurVariant;
-  size?: OurSize;
+  size?: React.ComponentProps<typeof CossButton>["size"];
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  asChild?: boolean;
   /** RAC-слот: "close" внутри Dialog, "remove" внутри Tag и т.п. */
   slot?: string;
 }
 
-/** Голый текст рядом с иконкой заворачиваем в span.
- *
- *  Стартер делает кнопку круглой иконкой по `:has(> svg:only-child)`, а
- *  текстовый УЗЕЛ элементом не считается — поэтому «<Icon/> подпись» тоже
- *  попадала под это правило: кнопка схлопывалась в 32×32, подпись вылезала
- *  наружу (было видно в хвост-группах). Обёртка снимает only-child, чисто
- *  иконочные кнопки остаются круглыми. */
-function wrapText(children: React.ReactNode): React.ReactNode {
-  return React.Children.map(children, (c) =>
-    typeof c === "string" || typeof c === "number" ? <span>{c}</span> : c
-  );
-}
-
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", onClick, disabled, asChild, type, children, ...props }, _ref) => (
-    <RacButton
-      // RAC работает на onPress (тач/перо/клавиатура единообразно).
-      onPress={onClick as never}
-      isDisabled={disabled}
-      type={type ?? "button"}
-      variant={VARIANT[variant] ?? "primary"}
-      className={cn(
-        // Стартер не запрещает перенос: длинная подпись схлопывала кнопку
-        // в узкий столбик, и текст вылезал за её границы (см. хвост-группы).
-        "shrink-0 whitespace-nowrap",
-        SIZE[size],
-        EXTRA[variant],
-        className
-      )}
-      {...(props as Record<string, unknown>)}
-    >
-      {wrapText(children)}
-    </RacButton>
-  )
+  (
+    {
+      className,
+      variant = "default",
+      size = "default",
+      onClick,
+      disabled,
+      type: _type,
+      children,
+      ...props
+    },
+    _ref
+  ) => {
+    void _ref;
+    void _type;
+    return (
+      <CossButton
+        onClick={onClick}
+        disabled={disabled}
+        variant={VARIANT[variant]}
+        size={size}
+        className={cn(variant === "success" ? SUCCESS_CLASSES : null, className)}
+        {...(props as Record<string, unknown>)}
+      >
+        {children}
+      </CossButton>
+    );
+  }
 );
 Button.displayName = "Button";

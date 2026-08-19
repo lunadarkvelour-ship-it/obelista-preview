@@ -2,8 +2,8 @@
 
 import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/components/coss";
+import { Label } from "@/components/coss";
 
 export function Structure() {
   const { form, set } = useFormScope();
