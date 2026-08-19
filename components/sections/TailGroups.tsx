@@ -6,7 +6,7 @@ import { SectionCard, Hint } from "@/components/studio/fields";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PixelField } from "@/components/studio/PixelField";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/coss";
 import { X, Plus } from "lucide-react";
 import { parseIds } from "@/lib/build-spec";
 import { listItem } from "@/lib/motion";

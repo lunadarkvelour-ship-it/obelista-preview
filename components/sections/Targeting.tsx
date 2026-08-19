@@ -4,7 +4,7 @@ import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/coss";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GENDERS, DEVICES, USER_OS } from "@/lib/constants";
 import { osVersion } from "@/lib/build-spec";

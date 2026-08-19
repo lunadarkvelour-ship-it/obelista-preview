@@ -19,7 +19,7 @@ import { Sidebar } from "./Sidebar";
 import { MobileBar } from "@/components/studio/MobileBar";
 import { PresetCommand } from "@/components/presets/PresetCommand";
 import { PresetManager } from "@/components/presets/PresetManager";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/coss";
 
 /** Пульс панели. С мостом проверяем раз в минуту (файл на диске рядом),
  *  без него — раз в 5 минут: снапшот теперь собирает демон через приложение,

@@ -9,7 +9,7 @@ import {
 } from "react-aria-components";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/coss";
 
 /** Секция конструктора — ПЛОСКИЙ блок на RAC Disclosure: никаких коробок с
  *  тенями, иерархию несут хеирлайны между секциями (стиль Coinbase).

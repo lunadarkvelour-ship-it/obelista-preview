@@ -4,7 +4,7 @@ import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/coss";
 import { BUDGET_LEVELS, BID_STRATEGIES } from "@/lib/constants";
 
 export function Budget() {

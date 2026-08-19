@@ -60,7 +60,7 @@ import {
 } from "lucide-react";
 import { PAGE_PAD, PAGE_WIDTH } from "@/components/shell/page";
 import { Menu, MenuItem, MenuTrigger } from "@/components/ui/menu";
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/components/coss";
 import { Expandable } from "@/components/ui/disclosure";
 import {
   RULE_ACTIONS,

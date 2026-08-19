@@ -5,7 +5,7 @@ import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
 import { DateTimeField } from "@/components/ui/datetime";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/components/coss";
 import { X } from "lucide-react";
 import { ACTIVATE_OPTIONS, SPECIAL_CATS } from "@/lib/constants";
 
