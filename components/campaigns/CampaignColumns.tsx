@@ -19,7 +19,8 @@
  */
 
 import * as React from "react";
-import { Button, Dialog, DialogTrigger, Popover, Switch } from "react-aria-components";
+import { Dialog, DialogTrigger, Popover } from "react-aria-components";
+import { Button, Switch } from "@/components/coss";
 import { Columns3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CTRL, CTRL_IDLE } from "@/components/analytics/controls";
@@ -92,7 +93,7 @@ export function СписокМетрик({ visible, onChange }: ВыборМет
       <div className="mb-2.5 flex items-center justify-between gap-3">
         <span className="microlabel">which metrics to show</span>
         <Button
-          onPress={() => onChange(CAMP_DEFAULT_VISIBLE)}
+          onClick={() => onChange(CAMP_DEFAULT_VISIBLE)}
           className="focus-ring label rounded px-1 text-muted-foreground outline-none hover:text-foreground"
         >
           reset
@@ -108,34 +109,26 @@ export function СписокМетрик({ visible, onChange }: ВыборМет
                   /* Подсказка на ОБЁРТКЕ, а не на переключателе: у контрола
                      react-aria `title` вообще не проп — та же по сути грабля,
                      что на кнопке действия в дереве. */
-                  <div key={c.key} title={c.hint}>
+                  <label
+                    key={c.key}
+                    title={c.hint}
+                    className={cn(
+                      "focus-ring group flex w-full cursor-pointer items-center justify-between",
+                      "gap-3 rounded-md px-1.5 py-1 text-[13px] outline-none hover:bg-hover",
+                    )}
+                  >
+                    <span className="flex min-w-0 flex-col">
+                      <span className="truncate leading-tight text-foreground">{c.title}</span>
+                      <span className="mt-0.5 truncate text-[11px] leading-tight text-muted-foreground">
+                        {c.hint}
+                      </span>
+                    </span>
                     <Switch
-                      isSelected={включено.has(c.key)}
-                      onChange={(дальше) => переключить(c.key, дальше)}
-                      className={cn(
-                        "focus-ring group flex w-full cursor-pointer items-center justify-between",
-                        "gap-3 rounded-md px-1.5 py-1 text-[13px] outline-none hover:bg-hover",
-                      )}
-                    >
-                      <span className="flex min-w-0 flex-col">
-                        <span className="truncate leading-tight text-foreground">{c.title}</span>
-                        <span className="mt-0.5 truncate text-[11px] leading-tight text-muted-foreground">
-                          {c.hint}
-                        </span>
-                      </span>
-                      <span
-                        className={cn(
-                          "relative h-[18px] w-8 flex-none rounded-full bg-border-strong",
-                          "transition-colors group-selected:bg-primary",
-                        )}
-                      >
-                        <span
-                          className="absolute left-[2px] top-[2px] size-[14px] rounded-full bg-background
-                                     transition-transform group-selected:translate-x-[14px]"
-                        />
-                      </span>
-                    </Switch>
-                  </div>
+                      checked={включено.has(c.key)}
+                      onCheckedChange={(дальше) => переключить(c.key, дальше)}
+                      aria-label={c.title}
+                    />
+                  </label>
               ))}
             </div>
           </div>

@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Button, Dialog, DialogTrigger, Popover, Switch } from "react-aria-components";
+import { Dialog, DialogTrigger, Popover } from "react-aria-components";
+import { Button, Switch } from "@/components/coss";
 import { cn } from "@/lib/utils";
 import { COLUMNS, DEFAULT_VISIBLE, withColumn, type ColDef, type ColKey } from "@/lib/analytics-columns";
 
@@ -44,7 +45,7 @@ export function ColumnPicker({
           <div className="mb-2 flex items-center justify-between">
             <span className="microlabel">which columns to show</span>
             <Button
-              onPress={() => onChange(DEFAULT_VISIBLE)}
+              onClick={() => onChange(DEFAULT_VISIBLE)}
               className="label text-muted-foreground outline-none hover:text-foreground"
             >
               reset
@@ -55,29 +56,27 @@ export function ColumnPicker({
               <div key={g}>
                 <div className="microlabel mb-1 pl-1.5">{GROUP_LABEL[g] ?? g}</div>
                 <div className="space-y-0.5">
-                  {COLUMNS.filter((c) => c.group === g).map((c) => (
-                    <Switch
-                      key={c.key}
-                      isSelected={on.has(c.key)}
-                      onChange={(next) => toggle(c.key, next)}
-                      className="focus-ring group flex w-full cursor-pointer items-center justify-between gap-3 rounded-md px-1.5 py-1 text-[13px] outline-none hover:bg-hover"
-                    >
-                      <span className="flex min-w-0 flex-col">
-                        <span className="truncate text-foreground">{c.title}</span>
-                        {c.hint ? (
-                          <span className="truncate text-[11px] text-muted-foreground">{c.hint}</span>
-                        ) : null}
-                      </span>
-                      <span
-                        className={cn(
-                          "relative h-[18px] w-8 flex-none rounded-full bg-border-strong transition-colors",
-                          "group-selected:bg-primary",
-                        )}
+                  {COLUMNS.filter((c) => c.group === g).map((c) => {
+                    const on_ = on.has(c.key);
+                    return (
+                      <label
+                        key={c.key}
+                        className="focus-ring group flex w-full cursor-pointer items-center justify-between gap-3 rounded-md px-1.5 py-1 text-[13px] outline-none hover:bg-hover"
                       >
-                        <span className="absolute left-[2px] top-[2px] size-[14px] rounded-full bg-background transition-transform group-selected:translate-x-[14px]" />
-                      </span>
-                    </Switch>
-                  ))}
+                        <span className="flex min-w-0 flex-col">
+                          <span className="truncate text-foreground">{c.title}</span>
+                          {c.hint ? (
+                            <span className="truncate text-[11px] text-muted-foreground">{c.hint}</span>
+                          ) : null}
+                        </span>
+                        <Switch
+                          checked={on_}
+                          onCheckedChange={(next) => toggle(c.key, next)}
+                          aria-label={c.title}
+                        />
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             ))}
