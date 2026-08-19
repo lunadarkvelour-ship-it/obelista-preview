@@ -13,7 +13,6 @@
 import * as React from "react";
 import { Menu as BaseMenu } from "@base-ui/react/menu";
 import { Popover } from "@/components/ui/popover";
-import { Header as RacHeader } from "react-aria-components";
 import { cn } from "@/lib/utils";
 
 /** onAction на Menu → onClick на MenuItem: провайдим через контекст. */
@@ -188,7 +187,10 @@ export function SubmenuTrigger({ children }: { children: React.ReactNode }) {
  *  обёртка для редких случаев ручного монтажа. */
 export { Popover as MenuPopover };
 
-/** Backward-compat: старый MenuHeader — заголовок секции. Не путать с
- *  Menu.GroupLabel: это просто блочный заголовок вне группы. В потребителях
- *  не используется; сохранён как алиас RAC Header. */
-export { RacHeader as MenuHeader };
+/** Backward-compat: старый MenuHeader — заголовок секции вне группы. В coss
+ *  эквивалент — `Menu.GroupLabel`, но для разделов без группы он не нужен.
+ *  В потребителях не используется; если понадобится — завести как тонкий
+ *  <div> с теми же классами, что в старом RAC Header. Сейчас не экспортируем,
+ *  чтобы не возвращать зависимость от RAC. */
+// MenuHeader — намеренно не экспортирован: coss использует Menu.GroupLabel,
+// и при появлении потребителя проще написать его с нуля, чем тащить RAC.
