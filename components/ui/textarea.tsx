@@ -1,13 +1,16 @@
 "use client";
 
-/** Многострочное поле в стиле стартера (та же рамка/фокус, что у Input). */
+/** Многострочное поле. Внутренность — голый <textarea> с coss-стилем
+ *  вёрстки (font-mono? нет, те же классы, что в input/textarea старого
+ *  шима). Берём ref прямо на <textarea>, а не на coss-обёртку <span>,
+ *  чтобы Naming вставлял макросы туда же, куда и раньше.
+ */
 import * as React from "react";
-import { TextArea as RacTextArea } from "react-aria-components";
 import { cn } from "@/lib/utils";
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"textarea">>(
   ({ className, ...props }, ref) => (
-    <RacTextArea
+    <textarea
       ref={ref}
       className={cn(
         "min-h-16 w-full rounded-lg border border-neutral-300 px-3 py-2 font-sans text-sm dark:border-neutral-600",
