@@ -1,10 +1,15 @@
 "use client";
 
-/** Поле ввода в стиле tailwind-стартера (Field.tsx: те же классы Input +
- *  рамка/фокус из его TextField). Взят голый RAC Input, потому что Naming
- *  вставляет макросы по ref, а обёртка стартера ref не пробрасывает. */
+/** Поле ввода. Внутренность — InputPrimitive из @base-ui/react/input
+ *  (это фундамент coss Input), обёрнуто в наш визуал из старого шима.
+ *
+ *  Naming вставляет макросы по ref, а обёртка coss-Input (со своим
+ *  <span data-slot="input-control">) ref пробрасывает на <span>, а не
+ *  на <input>. Чтобы макросы легли, нужен реф прямо на <input>, поэтому
+ *  используем InputPrimitive напрямую.
+ */
 import * as React from "react";
-import { Input as RacInput } from "react-aria-components";
+import { Input as InputPrimitive } from "@base-ui/react/input";
 import { cn } from "@/lib/utils";
 
 export const inputClasses = cn(
@@ -19,7 +24,7 @@ export const inputClasses = cn(
 
 export const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => (
-    <RacInput
+    <InputPrimitive
       ref={ref}
       type={type}
       className={cn(
