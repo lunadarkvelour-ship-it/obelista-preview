@@ -4,7 +4,7 @@ import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
 import { SelectField } from "@/components/studio/control";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/coss";
 import { Checkbox } from "@/components/coss";
 import { CTAS, CREO_SOURCES } from "@/lib/constants";
 

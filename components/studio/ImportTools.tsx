@@ -7,7 +7,7 @@ import { toast } from "@/components/ui/toast";
 import { Upload } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { Expandable } from "@/components/ui/disclosure";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/coss";
 import { Button } from "@/components/ui/button";
 import { Hint } from "@/components/studio/fields";
 import { parseSnapshot } from "@/lib/snapshot";

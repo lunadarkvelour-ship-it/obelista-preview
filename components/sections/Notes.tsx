@@ -14,7 +14,7 @@
 
 import { useFormScope } from "@/components/studio/form-scope";
 import { SectionCard, Row, Grow, Hint } from "@/components/studio/fields";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/coss";
 
 export function Notes() {
   const { form, set } = useFormScope();
