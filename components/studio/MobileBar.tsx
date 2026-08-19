@@ -2,26 +2,30 @@
 
 /** Нижняя панель для телефона: листы панели + шторка с шагами конструктора.
  *  На десктопе то же самое лежит слева в сайдбаре — на узком экране колонка не
- *  помещается. Шторка — RAC Modal со slide-up анимацией на data-entering/exiting. */
+ *  помещается. Шторка — coss @base-ui/react/dialog со slide-up анимацией на
+ *  data-starting/ending-style. */
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button as RacButton, Heading } from "react-aria-components";
+import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { List, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/dialog";
 import { SECTIONS } from "./sections-list";
 import { LEAVES } from "@/components/shell/leaves";
 import { cn } from "@/lib/utils";
 
-/* Шапка внутри шторки стартера — заголовок + крестик. */
+/* Шапка внутри шторки: coss Dialog.Title (даёт <h2> и aria-labelledby на
+ *  попап автоматически) + Dialog.Close, который сам зовёт onOpenChange. */
 function SheetHeader({ title }: { title: string }) {
   return (
     <div className="flex items-center justify-between border-b border-border px-1 pb-3">
-      <Heading slot="title" className="text-base font-semibold">{title}</Heading>
-      <Button variant="link" size="icon-sm" slot="close" aria-label="Close">
+      <BaseDialog.Title className="text-base font-semibold">{title}</BaseDialog.Title>
+      <BaseDialog.Close
+        aria-label="Close"
+        className="focus-ring flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-md border-none bg-transparent p-0 text-current outline-none hover:bg-hover pressed:bg-hover"
+      >
         <X size={16} />
-      </Button>
+      </BaseDialog.Close>
     </div>
   );
 }
@@ -58,9 +62,14 @@ export function MobileBar() {
         })}
         {/* Шаги нужны только там, где есть сама форма. */}
         {pathname === "/launch" && (
-          <RacButton onPress={() => setNav(true)} className={cn(btn, "max-w-[68px] flex-none")} aria-label="Steps">
+          <button
+            type="button"
+            onClick={() => setNav(true)}
+            className={cn(btn, "max-w-[68px] flex-none")}
+            aria-label="Steps"
+          >
             <List className="size-4 text-primary-ink" />
-          </RacButton>
+          </button>
         )}
       </div>
 
@@ -68,14 +77,15 @@ export function MobileBar() {
         <SheetHeader title="Steps" />
         <nav className="flex flex-col pt-2">
           {SECTIONS.map((s) => (
-            <RacButton
+            <button
               key={s.id}
-              onPress={() => go(s.id)}
+              type="button"
+              onClick={() => go(s.id)}
               className="focus-ring flex min-h-12 cursor-pointer items-center gap-3 rounded-lg px-3 text-left text-sm outline-none hover:bg-elevated pressed:bg-hover"
             >
               <span className="font-mono text-xs text-ghost">{s.idx}</span>
               {s.label}
-            </RacButton>
+            </button>
           ))}
         </nav>
       </Sheet>

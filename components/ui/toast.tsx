@@ -1,7 +1,20 @@
 "use client";
 
 /** Тосты = Toast из tailwind-стартера (синяя плашка, view-transition стопки).
- *  Наружу — прежний контракт: toast.success / toast.error. */
+ *  Наружу — прежний контракт: toast.success / toast.error.
+ *
+ *  ОСТАВЛЕН НА RAC (UNSTABLE_Toast*). Причина: coss-овая модель тостов
+ *  устроена принципиально иначе — это anchored/managed через `toastManager` /
+ *  `anchoredToastManager` с провайдерами в layout, без Sonner-style
+ *  `toast(...)` API. У нас 8 потребителей (`toast.success`/`toast.error` в
+ *  ProfileAccounts, PresetCommand, PresetManager, PreviewView, SummaryBar,
+ *  ImportTools, OutputPanel + AppToastRegion в app/layout.tsx), и перевод
+ *  на coss означал бы: (а) завернуть дерево в ToastProvider + AnchoredToastProvider
+ *  в layout, (б) переписать все 7 вызовов `toast.success("x")` на
+ *  `toastManager.add({ title: "x", type: "success" })`, (в) переписать разметку
+ *  AppToastRegion под coss `<Toast.*>`, включая anchored-логику, которой у нас
+ *  сегодня нет. Это отдельная миграция со своей схемой, не точечная замена шима.
+ *  Возвращаемся сюда, когда в coss-Toast переедет весь фидбек-стек. */
 import * as React from "react";
 import { flushSync } from "react-dom";
 import {
