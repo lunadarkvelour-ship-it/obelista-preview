@@ -34,6 +34,7 @@
  */
 
 import * as React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { api, type CollectorState } from "@/lib/analytics";
 import {
   healthMeaning,
@@ -58,28 +59,24 @@ const ОПРОС_МС = 60_000;
  *
  *  Ошибку глотаем намеренно: недоступный демон — это не повод показать красную
  *  плашку про сбор. Про недоступность демона лист говорит своими средствами, а
- *  выдумывать из неё вердикт значит соврать в ту же сторону, что и молчание. */
+ *  выдумывать из неё вердикт значит соврать в ту же сторону, что и молчание.
+ *
+ *  Запрос уехал в TanStack Query: `refetchInterval` заменил setInterval, а
+ *  `enabled: false` — ранний return из useEffect. Старая семантика «null при
+ *  ошибке» сохранена: query.error → null в return, чтобы вердикт не показал
+ *  старый тон. */
 function useCollector(включено: boolean): CollectorState | null {
-  const [st, setSt] = React.useState<CollectorState | null>(null);
-  React.useEffect(() => {
+  const query = useQuery({
+    queryKey: ["analytics", "collector"] as const,
+    queryFn: () => api.collector(),
+    refetchInterval: ОПРОС_МС,
     /* Лист, который опрашивает `/collector` сам, второй раз опрашивать не надо:
        это был бы лишний запрос в минуту на каждую открытую вкладку и вдобавок
        второй ответ про то же самое, который может разойтись с первым. */
-    if (!включено) return;
-    let живо = true;
-    const тянуть = () =>
-      api
-        .collector()
-        .then((s) => живо && setSt(s))
-        .catch(() => живо && setSt(null));
-    void тянуть();
-    const id = setInterval(() => void тянуть(), ОПРОС_МС);
-    return () => {
-      живо = false;
-      clearInterval(id);
-    };
-  }, [включено]);
-  return st;
+    enabled: включено,
+    retry: false,
+  });
+  return query.error ? null : query.data ?? null;
 }
 
 export interface CollectorVerdictProps {
