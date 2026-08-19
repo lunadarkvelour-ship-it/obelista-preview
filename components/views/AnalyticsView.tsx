@@ -11,7 +11,7 @@
  */
 
 import * as React from "react";
-import { Button } from "react-aria-components";
+import { Button } from "@/components/coss";
 import { EyeOff, RefreshCw, ChevronsDownUp, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -976,19 +976,19 @@ export function AnalyticsView() {
               (`stored_from` — самый ранний хранимый день, `today` — его
               сегодня), а не из своих часов; не знаем их — кнопка выключена. */}
           <Button
-            onPress={() => {
+            onClick={() => {
               const п = board?.period;
               if (!п?.stored_from || !п.today) return;
               setPeriod({ since: п.stored_from, until: п.today });
             }}
-            isDisabled={!board?.period?.stored_from || !board?.period?.today}
+            disabled={!board?.period?.stored_from || !board?.period?.today}
             className={cn(CTRL, CTRL_IDLE, "disabled:opacity-40")}
           >
             All time
           </Button>
 
           <Button
-            onPress={() => {
+            onClick={() => {
               void load(period, geo);
               // Кнопка обязана не только перечитать базу, но и пнуть сбор:
               // иначе она молчит о том, что в базу давно не пишут, а починку
@@ -998,7 +998,7 @@ export function AnalyticsView() {
               // ради которой жмут «обновить», а сам по себе он не приезжает.
               void pullAccounts();
             }}
-            isDisabled={pending}
+            disabled={pending}
             /* Надпись НЕ меняется на «гружу…». Смена текста меняла ширину
                кнопки, ряд перекладывался, и нажатие «обновить» выглядело как
                мигание всей шапки. Загрузка показывается вращением иконки. */
@@ -1160,8 +1160,8 @@ export function AnalyticsView() {
               он появлялся и исчезал вместе с числом, и соседние кнопки на
               каждой смене диапазона переезжали на его ширину. */}
           <Button
-            onPress={() => setHideNoSpend((v) => !v)}
-            isDisabled={hiddenNoSpend === 0}
+            onClick={() => setHideNoSpend((v) => !v)}
+            disabled={hiddenNoSpend === 0}
             className={cn(
               CTRL,
               hideNoSpend && hiddenNoSpend > 0 ? CTRL_ON : CTRL_MUTED,
@@ -1189,8 +1189,8 @@ export function AnalyticsView() {
           {/* «Свернуть всё» вместо гармошки. Раньше раскрытие крео молча
               закрывало соседнее, и сравнить два крео рядом было нельзя. */}
           <Button
-            onPress={() => setOpen(new Set())}
-            isDisabled={!open.size}
+            onClick={() => setOpen(new Set())}
+            disabled={!open.size}
             className={cn(CTRL, CTRL_MUTED, !open.size && "opacity-40")}
           >
             <ChevronsDownUp className="size-3.5 flex-none" />
@@ -1212,7 +1212,7 @@ export function AnalyticsView() {
                которого в файле нет, — а спорить с ним человеку нечем, он
                открывает файл через неделю. Рядом это уже сделано правильно:
                `SelectionBar` получает `board?.since` (:1073). */
-            onPress={() =>
+            onClick={() =>
               saveText(
                 BOM +
                   toCsv(flat, visible, {
@@ -1227,7 +1227,7 @@ export function AnalyticsView() {
                 csvFilename(board?.since ?? "", board?.until ?? ""),
               )
             }
-            isDisabled={!flat.length}
+            disabled={!flat.length}
             className={cn(CTRL, CTRL_MUTED, !flat.length && "opacity-40")}
           >
             <Download className="size-3.5 flex-none" />

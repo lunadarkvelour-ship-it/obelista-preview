@@ -27,7 +27,7 @@
  */
 
 import * as React from "react";
-import { Button } from "react-aria-components";
+import { Button } from "@/components/coss";
 import { CalendarRange } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CTRL, CTRL_IDLE, CTRL_ON, SEG, SEG_OFF, SEG_ON, SEG_WRAP } from "@/components/analytics/controls";
@@ -139,8 +139,8 @@ export function PeriodPicker({
           return (
             <Button
               key={п.id}
-              isDisabled={!!busy}
-              onPress={() => onChange({ preset: п.id })}
+              disabled={!!busy}
+              onClick={() => onChange({ preset: п.id })}
               className={cn(SEG, on ? SEG_ON : SEG_OFF)}
             >
               {п.label}
@@ -150,8 +150,8 @@ export function PeriodPicker({
       </div>
 
       <Button
-        isDisabled={!!busy}
-        onPress={() => setОткрыт((v) => !v)}
+        disabled={!!busy}
+        onClick={() => setОткрыт((v) => !v)}
         className={cn(CTRL, свой ? CTRL_ON : CTRL_IDLE)}
       >
         <CalendarRange className="size-3.5 flex-none" />

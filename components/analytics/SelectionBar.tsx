@@ -13,7 +13,7 @@
  */
 
 import * as React from "react";
-import { Button } from "react-aria-components";
+import { Button } from "@/components/coss";
 import { Copy, Check, ExternalLink, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { money, num } from "@/lib/analytics";
@@ -106,7 +106,7 @@ export function SelectionBar({
               нет — заглушка, чтобы путь был виден и не искался в другом месте.
               title на обёртке, а не на кнопке: RAC Button проп title не берёт. */}
           <span title="The manage sheet is not built yet — copy the JSON and run it through Claude">
-            <Button isDisabled className={cn(btn, "opacity-50")}>
+            <Button disabled className={cn(btn, "opacity-50")}>
               <ExternalLink className="size-3.5" />
               open in manage
             </Button>
@@ -121,7 +121,7 @@ export function SelectionBar({
                   title={k === "json" ? "The same payload, without an action"
                        : k === "tsv" ? "Selection as a table for Sheets"
                        : "Names only, one per line"}>
-              <Button onPress={() => copy(k)} className={btn}>
+              <Button onClick={() => copy(k)} className={btn}>
                 {done === k ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
                 {done === k ? "copied" : k === "names" ? "names" : k.toUpperCase()}
               </Button>
@@ -131,7 +131,7 @@ export function SelectionBar({
               была текстом на 11px среди трёх кнопок с рамками, и глаз
               проскакивал мимо: набрал полсотни строк — и ищешь, чем это
               отменить. Esc делает то же самое, о чём тут и написано. */}
-          <Button onPress={onClear} className={cn(btn, "text-muted-foreground")}>
+          <Button onClick={onClear} className={cn(btn, "text-muted-foreground")}>
             <X className="size-3.5" />
             clear selection
             {/* 11px и полный токен вместо 10px и /80: замерено 3.47 при норме

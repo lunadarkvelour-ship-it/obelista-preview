@@ -20,8 +20,8 @@ import {
   TableBody,
   TableFooter,
   TableHeader,
-  Button as AriaButton,
 } from "react-aria-components";
+import { Button } from "@/components/coss";
 import { ArrowUp, ChevronRight, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -858,9 +858,9 @@ export function CreativeTable({
                       }
                     >
                       {r.hasKids ? (
-                        <AriaButton
+                        <Button
                           aria-label={r.open ? "Collapse" : "Expand ad accounts"}
-                          onPress={() => onToggle(n)}
+                          onClick={() => onToggle(n)}
                           className={cn(
                             "focus-ring relative flex size-full items-center justify-center rounded",
                             "text-muted-foreground transition-colors duration-150 ease-out",
@@ -879,7 +879,7 @@ export function CreativeTable({
                               r.open && "rotate-90",
                             )}
                           />
-                        </AriaButton>
+                        </Button>
                       ) : null}
                     </span>
 

@@ -19,7 +19,7 @@
  */
 
 import * as React from "react";
-import { Button as RacButton } from "react-aria-components";
+import { Button } from "@/components/coss";
 import {
   Archive, Cable, Check, Copy, KeyRound, Link2, Plus, RefreshCw, RotateCcw,
   ShieldAlert, Trash2, Unplug, X,
@@ -312,14 +312,14 @@ export function SocialsView() {
             no login configuration
           </span>
         )}
-        <RacButton
-          onPress={() => void load(true)}
-          isDisabled={pending}
+        <Button
+          onClick={() => void load(true)}
+          disabled={pending}
           className="focus-ring ml-auto flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs outline-none transition-colors duration-150 hover:border-border-strong pressed:scale-[0.98] disabled:opacity-50"
         >
           <RefreshCw className={cn("size-3.5", pending && "animate-spin")} strokeWidth={1.75} aria-hidden />
           Refresh
-        </RacButton>
+        </Button>
 
       </header>
 
@@ -333,14 +333,14 @@ export function SocialsView() {
             profiles are imported, or when an existing Facebook account needs OAuth again.
           </p>
         </div>
-        <RacButton
-          onPress={() => void addAccount()}
-          isDisabled={adding}
+        <Button
+          onClick={() => void addAccount()}
+          disabled={adding}
           className="focus-ring flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs outline-none transition-colors duration-150 hover:border-border-strong pressed:scale-[0.98] disabled:opacity-50"
         >
           <Plus className="size-3.5" strokeWidth={2} aria-hidden />
           {adding ? "Opening Facebook…" : "Add account"}
-        </RacButton>
+        </Button>
       </section>
 
       {/* ПРОФИЛИ СНАПШОТА — только когда режим включён, и отдельной секцией
@@ -433,13 +433,13 @@ export function SocialsView() {
           )}
         >
           <span className="min-w-0 flex-1 break-words">{итог.text}</span>
-          <RacButton
-            onPress={() => setИтог(null)}
+          <Button
+            onClick={() => setИтог(null)}
             aria-label="dismiss"
             className="focus-ring -my-0.5 rounded-md p-0.5 outline-none hover:text-foreground"
           >
             <X className="size-3.5" strokeWidth={1.75} aria-hidden />
-          </RacButton>
+          </Button>
         </div>
       )}
 
@@ -706,9 +706,9 @@ export function Row({
             кнопок: рука тянется к ней, а нужна вторая. Переподключение идёт
             через «отключить», и порядок действий от этого не меняется. */}
         {!s.connected && (
-        <RacButton
-          onPress={() => onCopy(s)}
-          isDisabled={!s.auth_url}
+        <Button
+          onClick={() => onCopy(s)}
+          disabled={!s.auth_url}
           className="focus-ring flex min-h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs outline-none transition-colors duration-150 hover:border-border-strong pressed:scale-[0.98] disabled:opacity-40"
         >
           {copied ? (
@@ -722,17 +722,17 @@ export function Row({
               Link
             </>
           )}
-        </RacButton>
+        </Button>
         )}
 
         {s.connected ? (
-          <RacButton
-            onPress={() => onForget(s)}
+          <Button
+            onClick={() => onForget(s)}
             className="focus-ring flex min-h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs text-destructive outline-none transition-colors duration-150 hover:border-destructive/50 pressed:scale-[0.98]"
           >
             <Unplug className="size-3.5" strokeWidth={1.75} aria-hidden />
             Disconnect
-          </RacButton>
+          </Button>
         ) : (
           /* Раньше здесь стоял span, оформленный как кнопка: он ничего не делал
              и всё равно приглашал нажать. Теперь это подпись рядом с реальным
@@ -822,8 +822,8 @@ export function OrphanRow({
             антидетект мог просто молчать, и отнимать единственное действие
             нельзя — на этом уже теряли строки, которые человек искал глазами. */}
         {!!s.auth_url && (
-          <RacButton
-            onPress={() => onCopy(s)}
+          <Button
+            onClick={() => onCopy(s)}
             className="focus-ring flex min-h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs outline-none transition-colors duration-150 hover:border-border-strong pressed:scale-[0.98]"
           >
             {copied ? (
@@ -837,7 +837,7 @@ export function OrphanRow({
                 Link
               </>
             )}
-          </RacButton>
+          </Button>
         )}
         <УбратьПрофиль onArchive={() => onArchive(s)} onDelete={() => onDelete(s)} />
       </div>
@@ -882,14 +882,14 @@ function ArchivedRow({
         not collected, not offered for uploads — its numbers are kept
       </span>
       <div className="flex flex-none items-center gap-1.5">
-        <RacButton
-          onPress={() => void вернуть()}
-          isDisabled={busy}
+        <Button
+          onClick={() => void вернуть()}
+          disabled={busy}
           className="focus-ring flex min-h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs outline-none transition-colors duration-150 hover:border-border-strong pressed:scale-[0.98] disabled:opacity-50"
         >
           <RotateCcw className="size-3.5" strokeWidth={1.75} aria-hidden />
           {busy ? "Restoring…" : "Restore"}
-        </RacButton>
+        </Button>
         {/* Удаление доступно и отсюда: заархивировав, человек нередко решает
             через неделю, что профиль не нужен вовсе. Уводить его для этого
             обратно в лист значило бы просить сначала вернуть в работу то, что
@@ -950,8 +950,8 @@ function УбратьПрофиль({
 
   if (!спрашиваем) {
     return (
-      <RacButton
-        onPress={() => setСпрашиваем(true)}
+      <Button
+        onClick={() => setСпрашиваем(true)}
         className="focus-ring flex min-h-8 items-center gap-1.5 rounded-lg px-2 text-2xs text-faint outline-none transition-colors duration-150 hover:text-destructive pressed:scale-[0.98]"
       >
         {/* Значок и слово совпадают с тем, что реально произойдёт: корзина у
@@ -969,7 +969,7 @@ function УбратьПрофиль({
             Archive
           </>
         )}
-      </RacButton>
+      </Button>
     );
   }
 
@@ -992,31 +992,31 @@ function УбратьПрофиль({
         )}
       </div>
       <div className="flex items-center gap-1.5">
-        <RacButton
-          onPress={() => setСпрашиваем(false)}
+        <Button
+          onClick={() => setСпрашиваем(false)}
           className="focus-ring min-h-8 rounded-lg px-2 text-2xs text-muted-foreground outline-none hover:text-foreground"
         >
           Cancel
-        </RacButton>
+        </Button>
         {onArchive && (
-          <RacButton
-            onPress={() => void сделать("archive", onArchive)}
-            isDisabled={!!busy}
+          <Button
+            onClick={() => void сделать("archive", onArchive)}
+            disabled={!!busy}
             className="focus-ring flex min-h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs outline-none transition-colors duration-150 hover:border-border-strong pressed:scale-[0.98] disabled:opacity-50"
           >
             <Archive className="size-3.5" strokeWidth={1.75} aria-hidden />
             {busy === "archive" ? "Archiving…" : "Archive"}
-          </RacButton>
+          </Button>
         )}
         {onDelete && (
-          <RacButton
-            onPress={() => void сделать("delete", onDelete)}
-            isDisabled={!!busy}
+          <Button
+            onClick={() => void сделать("delete", onDelete)}
+            disabled={!!busy}
             className="focus-ring flex min-h-8 items-center gap-1.5 rounded-lg border border-destructive/50 bg-card px-2.5 text-xs text-destructive outline-none transition-colors duration-150 hover:bg-destructive/10 pressed:scale-[0.98] disabled:opacity-50"
           >
             <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden />
             {busy === "delete" ? "Deleting…" : "Delete forever"}
-          </RacButton>
+          </Button>
         )}
       </div>
       {ошибка && (

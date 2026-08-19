@@ -62,7 +62,7 @@
  */
 
 import * as React from "react";
-import { Button } from "react-aria-components";
+import { Button } from "@/components/coss";
 import {
   ChevronRight, ChevronLeft, Eye, EyeOff, Pause, Play, RefreshCw, Search, ServerOff,
   Users,
@@ -384,7 +384,7 @@ export function CampRow({
         <Отступ depth={item.depth} />
         {item.hasKids ? (
           <Button
-            onPress={() => onToggle(r.fb_id)}
+            onClick={() => onToggle(r.fb_id)}
             aria-label={item.open ? "Collapse" : "Expand"}
             className="focus-ring flex size-4 flex-none items-center justify-center rounded text-muted-foreground"
           >
@@ -499,8 +499,8 @@ export function CampRow({
               title={blocked || (want === "PAUSED" ? "Pause in Meta now" : "Activate in Meta now")}
             >
               <Button
-                onPress={() => onSwitch(r)}
-                isDisabled={!!blocked}
+                onClick={() => onSwitch(r)}
+                disabled={!!blocked}
                 /* Причина уезжает и в имя кнопки: `title` на обёртке видит
                    мышь, а читалка экрана — нет, и для неё выключенная кнопка
                    без объяснения остаётся просто «pause, dimmed». */
@@ -946,8 +946,8 @@ export function CampaignsView() {
               busy={busy}
             />
             <Button
-              onPress={() => void load(место.кабы)}
-              isDisabled={busy || !место.кабы.length}
+              onClick={() => void load(место.кабы)}
+              disabled={busy || !место.кабы.length}
               className={cn(CTRL, CTRL_IDLE, "disabled:opacity-60")}
             >
               <RefreshCw className={cn("size-3.5 flex-none", busy && "animate-spin")} />
@@ -1292,7 +1292,7 @@ export function TreeFilters({
           бы вместе с ними и повод чинить. Ноль спрятанных тоже сказан вслух:
           «прятать нечего» — это ответ, а не пустое место. */}
       <Button
-        onPress={() => onСрез({ ...срез, безСпендаСкрыт: !срез.безСпендаСкрыт })}
+        onClick={() => onСрез({ ...срез, безСпендаСкрыт: !срез.безСпендаСкрыт })}
         aria-pressed={срез.безСпендаСкрыт}
         className={cn(CTRL, "h-[26px] px-2",
           срез.безСпендаСкрыт ? CTRL_ON : CTRL_IDLE)}
@@ -1319,10 +1319,10 @@ export function TreeFilters({
         </span>
       </Button>
 
-      <Button onPress={onРаскрыть} className={cn(CTRL, CTRL_IDLE, "h-[26px] px-2")}>
+      <Button onClick={onРаскрыть} className={cn(CTRL, CTRL_IDLE, "h-[26px] px-2")}>
         expand all
       </Button>
-      <Button onPress={onСвернуть} className={cn(CTRL, CTRL_IDLE, "h-[26px] px-2")}>
+      <Button onClick={onСвернуть} className={cn(CTRL, CTRL_IDLE, "h-[26px] px-2")}>
         collapse
       </Button>
 
@@ -1384,7 +1384,7 @@ export function AccountFloor({
       >
         {hasKids ? (
           <Button
-            onPress={onToggle}
+            onClick={onToggle}
             aria-label={open ? "Collapse this ad account" : "Expand this ad account"}
             className="focus-ring flex size-4 flex-none items-center justify-center rounded text-muted-foreground"
           >
@@ -1505,7 +1505,7 @@ export function БезРодителяРяд({ сколько, depth, open, onTo
       >
         <Отступ depth={depth} />
         <Button
-          onPress={onToggle}
+          onClick={onToggle}
           aria-label={open ? "Collapse" : "Expand"}
           className="focus-ring flex size-4 flex-none items-center justify-center rounded text-muted-foreground"
         >
@@ -1593,7 +1593,7 @@ function Крошки({ место, соцы, onСоцам, onКабинетам
   const крошка = (текст: string, onPress?: () => void) =>
     onPress ? (
       <Button
-        onPress={onPress}
+        onClick={onPress}
         className="focus-ring rounded px-1 text-[11.5px] text-muted-foreground hover:text-foreground"
       >
         {текст}
@@ -1720,7 +1720,7 @@ export function SocialLevel({ соцы, всего, активных, вне, on
                  hover:bg-hover"
     >
       <Button
-        onPress={onPress}
+        onClick={onPress}
         className="focus-ring -mx-1 flex min-w-0 flex-1 items-center gap-2.5 rounded-md px-1 py-1 text-left"
       >
         <Users className="size-4 flex-none text-muted-foreground" aria-hidden />
@@ -1744,8 +1744,8 @@ export function SocialLevel({ соцы, всего, активных, вне, on
           ноль: кнопка, которая ничего не откроет, врёт. */}
       <span className="flex flex-none items-center gap-1">
         <Button
-          onPress={() => onОткрытьАктивные(соц)}
-          isDisabled={!активныхЗдесь}
+          onClick={() => onОткрытьАктивные(соц)}
+          disabled={!активныхЗдесь}
           /* Ширина зафиксирована снизу: подпись растёт вместе с числом
              («open 6 active» против «open 135 active»), и без этого левый край
              кнопки прыгал на каждой строке — четыре разных края в столбик там,
@@ -1759,7 +1759,7 @@ export function SocialLevel({ соцы, всего, активных, вне, on
             строках подряд разнорост правого края виден сразу, а зона нажатия у
             стрелки была меньше пальца. */}
         <Button
-          onPress={onPress}
+          onClick={onPress}
           aria-label="Open this profile"
           className="focus-ring flex h-[30px] w-6 flex-none items-center justify-center rounded-md
                      text-faint transition-colors duration-150 hover:text-foreground"
@@ -1888,8 +1888,8 @@ export function AccountLevel({
             десяти мертвы. Кнопка гаснет, когда активных нет: предлагать
             действие, которое ничего не откроет, хуже, чем не предлагать. */}
         <Button
-          onPress={() => onОткрыть(активныеId)}
-          isDisabled={!активныеId.length}
+          onClick={() => onОткрыть(активныеId)}
+          disabled={!активныеId.length}
           className={cn(CTRL, CTRL_IDLE, "disabled:opacity-60")}
           /* Подсказка на обёртке не нужна: кнопка выключается только когда
              активных ноль, и это же написано числом на ней самой. */
@@ -1897,22 +1897,22 @@ export function AccountLevel({
           Open all active ({активныеId.length})
         </Button>
         <Button
-          onPress={() => onОтметитьМного(активныеId)}
-          isDisabled={!активныеId.length}
+          onClick={() => onОтметитьМного(активныеId)}
+          disabled={!активныеId.length}
           className={cn(CTRL, CTRL_IDLE, "disabled:opacity-60")}
         >
           Select all active
         </Button>
         <Button
-          onPress={() => onОткрыть(видимыеId)}
-          isDisabled={!видимыеId.length}
+          onClick={() => onОткрыть(видимыеId)}
+          disabled={!видимыеId.length}
           className={cn(CTRL, CTRL_IDLE, "disabled:opacity-60")}
         >
           Open all shown ({видимыеId.length})
         </Button>
         <Button
-          onPress={() => onОткрыть(отмечено)}
-          isDisabled={!отмечено.length}
+          onClick={() => onОткрыть(отмечено)}
+          disabled={!отмечено.length}
           className={cn(CTRL, CTRL_MUTED, "disabled:opacity-60")}
         >
           Open selected ({отмечено.length})
@@ -1956,7 +1956,7 @@ export function AccountLevel({
                   {a.status ? a.status.toLowerCase() : "not collected"}
                 </span>
                 <Button
-                  onPress={() => onОткрыть([a.act_id])}
+                  onClick={() => onОткрыть([a.act_id])}
                   className={cn(CTRL, CTRL_IDLE, "h-[26px] px-2")}
                 >
                   open

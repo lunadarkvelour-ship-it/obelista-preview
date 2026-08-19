@@ -26,7 +26,7 @@
  */
 
 import Link from "next/link";
-import { Button } from "react-aria-components";
+import { Button } from "@/components/coss";
 import type { EmptyKind } from "@/lib/analytics-empty";
 
 const БЛОК = "rounded-xl border border-border bg-card px-4 py-10 text-center";
@@ -88,7 +88,7 @@ export function AnalyticsEmpty({
         {detail && (
           <p className="mx-auto mt-1.5 max-w-md break-words text-2xs text-faint">{detail}</p>
         )}
-        <Button onPress={onRetry} className={ДЕЙСТВИЕ}>
+        <Button onClick={onRetry} className={ДЕЙСТВИЕ}>
           Try again
         </Button>
       </div>
