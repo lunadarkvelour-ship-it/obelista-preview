@@ -19,6 +19,9 @@
       .drop .t { color: #888; flex: 0 0 auto; }
       .drop .s { color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .empty { color: #999; font-size: 11px; font-style: italic; }
+      .refresh { display: block; width: 100%; margin-top: 10px; padding: 6px 10px; background: #f5f5f5; color: #111; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; }
+      .refresh:hover:not(:disabled) { background: #ebebeb; }
+      .refresh:disabled { opacity: 0.5; cursor: default; }
     </style>
   </head>
   <body>
@@ -26,6 +29,7 @@
     <div class="row"><span>Status</span><span id="status" class="pill idle">…</span></div>
     <div class="meta" id="meta">…</div>
     <div class="drops" id="drops"></div>
+    <button class="refresh" id="refresh" type="button">Refresh token</button>
     <a class="open" id="open-options" href="#">Open options</a>
     <script src="popup.js"></script>
   </body>
